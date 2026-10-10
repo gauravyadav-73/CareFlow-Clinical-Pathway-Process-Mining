@@ -7,4 +7,5 @@ Usage:
     python run_mining.py --log data/log.xes --out outputs --no-render
 """
 import argparse
+import os
 
