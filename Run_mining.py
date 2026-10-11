@@ -19,4 +19,5 @@ import process_mining as pmn
 
 def main():
      ap = argparse.ArgumentParser(description="CareFlow process mining analysis")
-    ap.add_argument("--log", default="data/sample_event_log.csv", help=".csv or .xes event log")
+     ap.add_argument("--log", default="data/sample_event_log.csv", help=".csv or .xes event log")
+     ap.add_argument("--out", default="outputs", help="output folder")
