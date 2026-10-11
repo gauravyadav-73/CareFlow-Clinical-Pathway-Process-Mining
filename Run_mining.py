@@ -22,3 +22,4 @@ def main():
      ap.add_argument("--log", default="data/sample_event_log.csv", help=".csv or .xes event log")
      ap.add_argument("--out", default="outputs", help="output folder")
      ap.add_argument("--no-render", action="store_true", help="skip Graphviz image rendering")
+     args = ap.parse_args()
