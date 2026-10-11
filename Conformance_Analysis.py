@@ -26,3 +26,6 @@ Command line demo:
     python conformance_analysis.py --demo
     python conformance_analysis.py --input data/event_log.csv --output outputs/
 """
+
+from __future__ import annotations
+
