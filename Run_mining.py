@@ -23,3 +23,5 @@ def main():
      ap.add_argument("--out", default="outputs", help="output folder")
      ap.add_argument("--no-render", action="store_true", help="skip Graphviz image rendering")
      args = ap.parse_args()
+
+     if not os.path.exists(args.log):
