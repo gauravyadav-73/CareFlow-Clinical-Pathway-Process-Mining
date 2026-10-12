@@ -1,6 +1,7 @@
 import streamlit as st
 import pandas as pd
 import plotly.express as px
+from utils.data_loader import load_csv, validate_event_log
 
 
 # --------------------------------------------------
