@@ -32,3 +32,7 @@ def main():
             print(f"[info] generated sample log -> {args.log}")
         else:
             sys.exit(f"Event log not found: {args.log}")
+            
+    pd.set_option("display.width", 200, "display.max_colwidth", 90)
+    df = pmn.load_event_log(args.log)
+    res = pmn.run_full_analysis(df, args.out, render=not args.no_render)
