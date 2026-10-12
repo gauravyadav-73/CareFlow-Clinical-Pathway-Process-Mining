@@ -25,3 +25,10 @@ def main():
      args = ap.parse_args()
 
      if not os.path.exists(args.log):
+         if args.log.endswith("sample_event_log.csv"):
+            from generate_sample_log import generate
+            os.makedirs(os.path.dirname(args.log), exist_ok=True)
+            generate().to_csv(args.log, index=False)
+            print(f"[info] generated sample log -> {args.log}")
+        else:
+            sys.exit(f"Event log not found: {args.log}")
