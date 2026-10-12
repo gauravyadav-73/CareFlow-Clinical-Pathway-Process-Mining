@@ -37,3 +37,10 @@ from datetime import datetime, timedelta
 
 import pandas as pd
 import pm4py
+
+# --------------------------------------------------------------------------
+# 1. STANDARD CLINICAL PATHWAY (edit this section to match your guidelines)
+# --------------------------------------------------------------------------
+
+# Process-tree notation:  ->  sequence,  X  exclusive choice,  +  parallel,  tau = skip
+STANDARD_PATHWAY_TREE = (
