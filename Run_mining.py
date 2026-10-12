@@ -36,3 +36,9 @@ def main():
     pd.set_option("display.width", 200, "display.max_colwidth", 90)
     df = pmn.load_event_log(args.log)
     res = pmn.run_full_analysis(df, args.out, render=not args.no_render)
+
+    s = res["summary"]
+    print("\n=== LOG SUMMARY ===")
+    print(f"Cases: {s['num_cases']} | Events: {s['num_events']} | "
+          f"Activities: {s['num_activities']} | Variants: {s['num_variants']}")
+    print(f"Period: {s['start_date']:%Y-%m-%d} to {s['end_date']:%Y-%m-%d}")
