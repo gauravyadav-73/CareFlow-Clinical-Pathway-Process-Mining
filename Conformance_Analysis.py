@@ -44,3 +44,7 @@ import pm4py
 
 # Process-tree notation:  ->  sequence,  X  exclusive choice,  +  parallel,  tau = skip
 STANDARD_PATHWAY_TREE = (
+    "->('Admission','Triage','Doctor Consultation',"
+    "X('Lab Test','X-Ray','Lab Test and X-Ray' ,tau),"
+    "'Treatment','Discharge')"
+)
