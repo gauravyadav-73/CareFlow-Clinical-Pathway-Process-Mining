@@ -42,3 +42,10 @@ def main():
     print(f"Cases: {s['num_cases']} | Events: {s['num_events']} | "
           f"Activities: {s['num_activities']} | Variants: {s['num_variants']}")
     print(f"Period: {s['start_date']:%Y-%m-%d} to {s['end_date']:%Y-%m-%d}")
+
+    print("\n=== THROUGHPUT TIME (hours) ===")
+    for k, v in res["throughput_summary"].items():
+        print(f"  {k:12s}: {v}")
+
+    print("\n=== TOP 5 VARIANTS ===")
+    print(res["variants"].head(5).to_string(index=False))
