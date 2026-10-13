@@ -48,12 +48,21 @@ STANDARD_PATHWAY_TREE = (
     "X('Lab Test','X-Ray','Lab Test and X-Ray' ,tau),"
     "'Treatment','Discharge')"
 )
+
 # NOTE: the line above keeps the parser simple. 'Lab Test and X-Ray' is not an
 # activity in the log; it just shows how extra branches could be added.
 # Order of the mandatory steps. Used by the rule-based checks.
 MANDATORY_STEPS = ["Admission", "Triage", "Doctor Consultation", "Treatment", "Discharge"]
+
 # Expected maximum waiting time (hours) between consecutive steps (clinical targets).
 # Anything above the target counts as a delay violation.
 WAIT_TARGET_HOURS = {
     ("Admission", "Triage"): 0.5,
     ("Triage", "Doctor Consultation"): 1.0,
+    ("Doctor Consultation", "Lab Test"): 1.0,
+    ("Doctor Consultation", "X-Ray"): 1.0,
+    ("Lab Test", "Treatment"): 2.0,
+    ("X-Ray", "Treatment"): 2.0,
+    ("Doctor Consultation", "Treatment"): 1.5,
+    ("Treatment", "Discharge"): 3.0,
+}
