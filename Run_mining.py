@@ -59,3 +59,5 @@ def main():
             print(f"  image: {name} -> {p}")
     if "render_error" in res:
         print("\n[warn]", res["render_error"])
+    if __name__ == "__main__":
+    main()
