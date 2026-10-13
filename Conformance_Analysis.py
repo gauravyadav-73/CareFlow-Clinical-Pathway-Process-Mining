@@ -52,3 +52,8 @@ STANDARD_PATHWAY_TREE = (
 # activity in the log; it just shows how extra branches could be added.
 # Order of the mandatory steps. Used by the rule-based checks.
 MANDATORY_STEPS = ["Admission", "Triage", "Doctor Consultation", "Treatment", "Discharge"]
+# Expected maximum waiting time (hours) between consecutive steps (clinical targets).
+# Anything above the target counts as a delay violation.
+WAIT_TARGET_HOURS = {
+    ("Admission", "Triage"): 0.5,
+    ("Triage", "Doctor Consultation"): 1.0,
