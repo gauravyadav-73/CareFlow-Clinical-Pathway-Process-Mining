@@ -48,3 +48,5 @@ STANDARD_PATHWAY_TREE = (
     "X('Lab Test','X-Ray','Lab Test and X-Ray' ,tau),"
     "'Treatment','Discharge')"
 )
+# NOTE: the line above keeps the parser simple. 'Lab Test and X-Ray' is not an
+# activity in the log; it just shows how extra branches could be added.
