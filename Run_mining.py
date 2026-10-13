@@ -49,3 +49,7 @@ def main():
 
     print("\n=== TOP 5 VARIANTS ===")
     print(res["variants"].head(5).to_string(index=False))
+
+    print("\n=== TOP BOTTLENECKS (mean wait between steps) ===")
+    print(res["bottlenecks"][["from", "to", "count", "mean_hours", "max_hours",
+                              "severity", "x_vs_avg"]].to_string(index=False))
