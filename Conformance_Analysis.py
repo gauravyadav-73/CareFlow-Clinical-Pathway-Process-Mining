@@ -50,3 +50,5 @@ STANDARD_PATHWAY_TREE = (
 )
 # NOTE: the line above keeps the parser simple. 'Lab Test and X-Ray' is not an
 # activity in the log; it just shows how extra branches could be added.
+# Order of the mandatory steps. Used by the rule-based checks.
+MANDATORY_STEPS = ["Admission", "Triage", "Doctor Consultation", "Treatment", "Discharge"]
