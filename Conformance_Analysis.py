@@ -74,3 +74,4 @@ CASE, ACT, TS = "case:concept:name", "concept:name", "time:timestamp"
 # 2. LOADING
 # --------------------------------------------------------------------------
 def load_event_log(
+    source,
