@@ -66,3 +66,5 @@ WAIT_TARGET_HOURS = {
     ("Doctor Consultation", "Treatment"): 1.5,
     ("Treatment", "Discharge"): 3.0,
 }
+
+# Column names after PM4Py formatting
