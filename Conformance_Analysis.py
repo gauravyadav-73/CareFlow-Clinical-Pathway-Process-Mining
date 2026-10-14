@@ -68,3 +68,4 @@ WAIT_TARGET_HOURS = {
 }
 
 # Column names after PM4Py formatting
+CASE, ACT, TS = "case:concept:name", "concept:name", "time:timestamp"
