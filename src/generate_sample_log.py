@@ -25,3 +25,17 @@ VARIANTS = [
     (["Patient Admission", "Triage", "Doctor Consultation", "Lab Test", "Surgery", "ICU Stay", "Treatment", "Discharge"], 4),
     (["Patient Admission", "Triage", "Doctor Consultation", "Treatment", "Discharge", "Readmission"], 2),
 ]
+
+# mean waiting time in minutes before an activity occurs (key = activity)
+WAIT_MIN = {
+    "Triage": 15,
+    "Doctor Consultation": 75,   # bottleneck: long wait after triage
+    "Lab Test": 35,
+    "Imaging": 50,
+    "Treatment": 40,
+    "Re-assessment": 60,
+    "Surgery": 120,
+    "ICU Stay": 45,
+    "Discharge": 90,             # delayed discharge paperwork
+    "Readmission": 2000,
+}
