@@ -75,3 +75,8 @@ CASE, ACT, TS = "case:concept:name", "concept:name", "time:timestamp"
 # --------------------------------------------------------------------------
 def load_event_log(
     source,
+    case_col: str = "case_id",
+    activity_col: str = "activity",
+    timestamp_col: str = "timestamp",
+) -> pd.DataFrame:
+    """Load a CSV path or DataFrame into PM4Py's standard event-log format."""
