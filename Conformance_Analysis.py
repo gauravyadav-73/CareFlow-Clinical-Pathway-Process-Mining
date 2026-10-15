@@ -80,3 +80,13 @@ def load_event_log(
     timestamp_col: str = "timestamp",
 ) -> pd.DataFrame:
     """Load a CSV path or DataFrame into PM4Py's standard event-log format."""
+    df = pd.read_csv(source) if isinstance(source, (str, os.PathLike)) else source.copy()
+    df = df.rename(columns={case_col: "case_id", activity_col: "activity", timestamp_col: "timestamp"})
+    df["timestamp"] = pd.to_datetime(df["timestamp"], errors="coerce")
+    df = df.dropna(subset=["case_id", "activity", "timestamp"])
+    df["case_id"] = df["case_id"].astype(str)
+    df["activity"] = df["activity"].astype(str).str.strip()
+    df = pm4py.format_dataframe(
+        df, case_id="case_id", activity_key="activity", timestamp_key="timestamp"
+    )
+    return df.sort_values([CASE, TS]).reset_index(drop=True)
