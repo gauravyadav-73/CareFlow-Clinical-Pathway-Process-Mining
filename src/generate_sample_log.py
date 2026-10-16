@@ -49,3 +49,9 @@ def generate(n_cases: int = 500) -> pd.DataFrame:
     for i in range(1, n_cases + 1):
         path = random.choices(pathways, weights)[0]
         t = base + timedelta(days=random.randint(0, 270), minutes=random.randint(0, 16 * 60))
+        for step, act in enumerate(path):
+            if step > 0:
+                mean = WAIT_MIN.get(act, 30)
+                t += timedelta(minutes=max(2, random.gauss(mean, mean * 0.35)))
+            rows.append({"case_id": f"P{i:04d}", "activity": act, "timestamp": t})
+    return pd.DataFrame(rows).sort_values(["case_id", "timestamp"]).reset_index(drop=True)
