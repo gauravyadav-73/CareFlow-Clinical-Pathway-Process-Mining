@@ -90,3 +90,8 @@ def load_event_log(
         df, case_id="case_id", activity_key="activity", timestamp_key="timestamp"
     )
     return df.sort_values([CASE, TS]).reset_index(drop=True)
+
+
+# --------------------------------------------------------------------------
+# 3. CONFORMANCE CHECKING (PM4Py token-based replay)
+# --------------------------------------------------------------------------
