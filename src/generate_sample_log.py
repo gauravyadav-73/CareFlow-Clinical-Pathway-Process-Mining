@@ -39,3 +39,13 @@ WAIT_MIN = {
     "Discharge": 90,             # delayed discharge paperwork
     "Readmission": 2000,
 }
+
+
+def generate(n_cases: int = 500) -> pd.DataFrame:
+    pathways = [p for p, _ in VARIANTS]
+    weights = [w for _, w in VARIANTS]
+    rows = []
+    base = datetime(2026, 1, 1, 6, 0)
+    for i in range(1, n_cases + 1):
+        path = random.choices(pathways, weights)[0]
+        t = base + timedelta(days=random.randint(0, 270), minutes=random.randint(0, 16 * 60))
