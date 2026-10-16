@@ -95,3 +95,7 @@ def load_event_log(
 # --------------------------------------------------------------------------
 # 3. CONFORMANCE CHECKING (PM4Py token-based replay)
 # --------------------------------------------------------------------------
+
+def build_standard_model():
+    """Return (petri_net, initial_marking, final_marking) for the standard pathway."""
+    
