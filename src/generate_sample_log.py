@@ -60,3 +60,4 @@ if __name__ == "__main__":
     os.makedirs(os.path.dirname(out), exist_ok=True)
     df = generate()
     df.to_csv(out, index=False)
+    print(f"Wrote {len(df)} events / {df.case_id.nunique()} cases -> {os.path.abspath(out)}")
