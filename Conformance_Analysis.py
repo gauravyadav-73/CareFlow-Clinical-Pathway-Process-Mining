@@ -100,3 +100,6 @@ def build_standard_model():
     """Return (petri_net, initial_marking, final_marking) for the standard pathway."""
     tree = pm4py.parse_process_tree(STANDARD_PATHWAY_TREE)
     return pm4py.convert_to_petri_net(tree)
+
+
+def token_replay(df: pd.DataFrame, net, im, fm) -> pd.DataFrame:
