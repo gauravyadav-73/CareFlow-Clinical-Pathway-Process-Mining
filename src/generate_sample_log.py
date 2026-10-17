@@ -55,3 +55,4 @@ def generate(n_cases: int = 500) -> pd.DataFrame:
                 t += timedelta(minutes=max(2, random.gauss(mean, mean * 0.35)))
             rows.append({"case_id": f"P{i:04d}", "activity": act, "timestamp": t})
     return pd.DataFrame(rows).sort_values(["case_id", "timestamp"]).reset_index(drop=True)
+if __name__ == "__main__":
