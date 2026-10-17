@@ -98,4 +98,5 @@ def load_event_log(
 
 def build_standard_model():
     """Return (petri_net, initial_marking, final_marking) for the standard pathway."""
+    tree = pm4py.parse_process_tree(STANDARD_PATHWAY_TREE)
     
