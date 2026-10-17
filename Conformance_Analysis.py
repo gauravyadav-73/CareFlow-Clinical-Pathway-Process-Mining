@@ -104,3 +104,4 @@ def build_standard_model():
 
 def token_replay(df: pd.DataFrame, net, im, fm) -> pd.DataFrame:
     """Replay every case on the standard model. Returns one row per case."""
+    log = pm4py.convert_to_event_log(df)
