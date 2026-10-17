@@ -56,3 +56,4 @@ def generate(n_cases: int = 500) -> pd.DataFrame:
             rows.append({"case_id": f"P{i:04d}", "activity": act, "timestamp": t})
     return pd.DataFrame(rows).sort_values(["case_id", "timestamp"]).reset_index(drop=True)
 if __name__ == "__main__":
+    out = os.path.join(os.path.dirname(__file__), "..", "data", "sample_event_log.csv")
