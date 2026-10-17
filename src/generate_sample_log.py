@@ -58,3 +58,4 @@ def generate(n_cases: int = 500) -> pd.DataFrame:
 if __name__ == "__main__":
     out = os.path.join(os.path.dirname(__file__), "..", "data", "sample_event_log.csv")
     os.makedirs(os.path.dirname(out), exist_ok=True)
+    df = generate()
