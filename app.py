@@ -3,55 +3,87 @@ import pandas as pd
 import plotly.express as px
 
 from utils.data_loader import load_csv, validate_event_log
+from login import require_login
+from logout import show_logout_button
 
 
-# ============================================================
-# 1. PAGE CONFIGURATION
-# ============================================================
+# --------------------------------------------------
+# PAGE CONFIGURATION
+# --------------------------------------------------
 
 st.set_page_config(
-    page_title="CareFlow | Clinical Process Mining",
+    page_title="CareFlow | Clinical Pathway Process Mining",
     page_icon="🏥",
     layout="wide",
     initial_sidebar_state="expanded",
 )
 
 
-# ============================================================
-# 2. CUSTOM CSS
-# ============================================================
+# --------------------------------------------------
+# AUTHENTICATION
+# --------------------------------------------------
+
+# Display the login page if the user is not authenticated.
+# This must run after st.set_page_config().
+require_login()
+
+
+# --------------------------------------------------
+# CUSTOM STYLING
+# --------------------------------------------------
 
 st.markdown(
     """
     <style>
+        .stApp {
+            background-color: #f5f8fc;
+        }
+
+        [data-testid="stSidebar"] {
+            background-color: #102a43;
+        }
+
+        [data-testid="stSidebar"] * {
+            color: #ffffff;
+        }
+
         .main-title {
-            font-size: 34px;
-            font-weight: 700;
+            font-size: 36px;
+            font-weight: 750;
+            color: #102a43;
             margin-bottom: 0;
         }
 
         .subtitle {
-            font-size: 15px;
-            color: #64748b;
+            color: #627d98;
+            font-size: 16px;
             margin-top: 5px;
-            margin-bottom: 20px;
+            margin-bottom: 25px;
         }
 
-        .section-caption {
-            color: #64748b;
-            font-size: 14px;
+        .section-title {
+            color: #102a43;
+            font-size: 24px;
+            font-weight: 700;
+        }
+
+        .info-card {
+            background-color: #ffffff;
+            padding: 18px;
+            border-radius: 12px;
+            border: 1px solid #d9e2ec;
+            margin-bottom: 15px;
         }
 
         div[data-testid="stMetric"] {
-            background-color: #f8fafc;
-            padding: 15px;
-            border-radius: 10px;
-            border: 1px solid #e2e8f0;
+            background-color: #ffffff;
+            border: 1px solid #d9e2ec;
+            padding: 16px;
+            border-radius: 12px;
         }
 
-        .status-label {
-            font-size: 13px;
-            color: #64748b;
+        div.stButton > button {
+            border-radius: 8px;
         }
     </style>
     """,
@@ -59,63 +91,614 @@ st.markdown(
 )
 
 
-# ============================================================
-# 3. HELPER FUNCTIONS
-# ============================================================
+# --------------------------------------------------
+# SESSION STATE
+# --------------------------------------------------
 
-def find_column(columns, keywords, default_index=0):
-    """Find a likely column based on its name."""
+if "careflow_dataset" not in st.session_state:
+    st.session_state["careflow_dataset"] = None
 
-    for column in columns:
-        normalized = str(column).strip().lower().replace("_", " ")
+if "careflow_filename" not in st.session_state:
+    st.session_state["careflow_filename"] = None
 
-        if any(keyword in normalized for keyword in keywords):
-            return column
 
-    return columns[min(default_index, len(columns) - 1)]
+# --------------------------------------------------
+# HELPER FUNCTIONS
+# --------------------------------------------------
+
+def find_column(columns, possible_names):
+    """Find a column using common column-name variations."""
+
+    column_lookup = {
+        str(column).strip().lower(): column
+        for column in columns
+    }
+
+    for name in possible_names:
+        if name.lower() in column_lookup:
+            return column_lookup[name.lower()]
+
+    return None
 
 
 def display_placeholder(title, description):
-    """Display a feature that awaits backend integration."""
+    """Display a page whose backend functionality is not yet integrated."""
+
+    st.markdown(
+        f'<p class="section-title">{title}</p>',
+        unsafe_allow_html=True,
+    )
 
     st.info(description)
 
-    st.markdown("### Integration status")
-    st.warning(
-        "This feature is awaiting integration with the team's "
-        "process-mining backend. No real analysis results are "
-        "being generated on this page yet."
+    st.caption(
+        "This section can be connected to the process-mining "
+        "backend as the project develops."
     )
 
-    st.markdown("### Expected functionality")
-    st.write(title)
+
+def safe_metric(label, value):
+    """Display a metric safely."""
+
+    st.metric(label=label, value=value)
 
 
-def safe_metric(value):
-    """Format a numeric metric."""
+# --------------------------------------------------
+# DATASET UPLOAD
+# --------------------------------------------------
 
-    return f"{value:,}"
+def upload_dataset():
+    """Upload and store a CSV event log."""
+
+    st.markdown(
+        '<p class="section-title">Upload Clinical Event Log</p>',
+        unsafe_allow_html=True,
+    )
+
+    st.write(
+        "Upload a CSV file containing clinical pathway events. "
+        "Each record should represent an event in a patient's journey."
+    )
+
+    uploaded_file = st.file_uploader(
+        "Choose a CSV file",
+        type=["csv"],
+        key="careflow_csv_uploader",
+        help="Upload a CSV containing case IDs, activities and timestamps.",
+    )
+
+    if uploaded_file is not None:
+
+        # Reload the file when a different upload is selected.
+        current_upload = (
+            uploaded_file.name,
+            uploaded_file.size,
+        )
+
+        previous_upload = st.session_state.get(
+            "careflow_upload_signature"
+        )
+
+        if current_upload != previous_upload:
+
+            try:
+                uploaded_file.seek(0)
+                df, error = load_csv(uploaded_file)
+
+                if error:
+                    st.error(f"Unable to load the CSV file: {error}")
+
+                elif df is None or df.empty:
+                    st.error(
+                        "The uploaded CSV is empty. "
+                        "Please upload a file containing event records."
+                    )
+
+                else:
+                    st.session_state["careflow_dataset"] = df
+                    st.session_state["careflow_filename"] = (
+                        uploaded_file.name
+                    )
+                    st.session_state["careflow_upload_signature"] = (
+                        current_upload
+                    )
+
+                    st.success(
+                        f"Successfully loaded {uploaded_file.name}"
+                    )
+
+            except Exception as exc:
+                st.error(f"Error reading the uploaded file: {exc}")
+
+    df = st.session_state.get("careflow_dataset")
+
+    if df is not None:
+        st.success("Dataset is available for analysis.")
+
+        col1, col2, col3 = st.columns(3)
+
+        with col1:
+            safe_metric("Total Records", len(df))
+
+        with col2:
+            safe_metric("Total Columns", len(df.columns))
+
+        with col3:
+            safe_metric(
+                "Missing Values",
+                int(df.isnull().sum().sum()),
+            )
+
+        st.subheader("Dataset Preview")
+        st.dataframe(df.head(10), use_container_width=True)
+
+        with st.expander("View all dataset columns"):
+            st.write(list(df.columns))
 
 
-# ============================================================
-# 4. SESSION STATE
-# ============================================================
+# --------------------------------------------------
+# DASHBOARD PAGE
+# --------------------------------------------------
 
-if "careflow_dataset" not in st.session_state:
-    st.session_state.careflow_dataset = None
+def show_dashboard():
 
-if "careflow_filename" not in st.session_state:
-    st.session_state.careflow_filename = None
+    st.markdown(
+        '<p class="main-title">CareFlow</p>',
+        unsafe_allow_html=True,
+    )
+
+    st.markdown(
+        '<p class="subtitle">'
+        'Clinical Pathway Process Mining and Analysis'
+        '</p>',
+        unsafe_allow_html=True,
+    )
+
+    st.markdown(
+        """
+        <div class="info-card">
+            <h3 style="color:#102a43;">Welcome to CareFlow</h3>
+            <p style="color:#486581;">
+                CareFlow helps analyse clinical event logs, understand
+                patient pathways, identify potential bottlenecks and
+                support process improvement.
+            </p>
+        </div>
+        """,
+        unsafe_allow_html=True,
+    )
+
+    df = st.session_state.get("careflow_dataset")
+
+    if df is None:
+        st.info(
+            "No dataset has been uploaded yet. "
+            "Open the Upload Dataset page to get started."
+        )
+
+        col1, col2, col3 = st.columns(3)
+
+        with col1:
+            st.markdown("### 📂")
+            st.subheader("Upload Data")
+            st.write("Import clinical event logs in CSV format.")
+
+        with col2:
+            st.markdown("### 🔍")
+            st.subheader("Discover Processes")
+            st.write("Explore patient activities and clinical pathways.")
+
+        with col3:
+            st.markdown("### 🚦")
+            st.subheader("Find Bottlenecks")
+            st.write("Prepare to investigate delays in clinical processes.")
+
+        return
+
+    st.subheader("Dataset Overview")
+
+    col1, col2, col3, col4 = st.columns(4)
+
+    with col1:
+        safe_metric("Total Events", len(df))
+
+    with col2:
+        safe_metric("Total Columns", len(df.columns))
+
+    with col3:
+        safe_metric(
+            "Missing Values",
+            int(df.isnull().sum().sum()),
+        )
+
+    with col4:
+        safe_metric(
+            "Unique Activities",
+            int(df.nunique().sum()),
+        )
+
+    st.subheader("Recent Dataset Records")
+    st.dataframe(df.head(10), use_container_width=True)
+
+    st.caption(
+        f"Current dataset: "
+        f"{st.session_state.get('careflow_filename', 'Uploaded CSV')}"
+    )
 
 
-# ============================================================
-# 5. SIDEBAR NAVIGATION
-# ============================================================
+# --------------------------------------------------
+# UPLOAD DATASET PAGE
+# --------------------------------------------------
+
+def show_upload_page():
+
+    upload_dataset()
+
+    df = st.session_state.get("careflow_dataset")
+
+    if df is None:
+        return
+
+    st.divider()
+
+    st.markdown(
+        '<p class="section-title">Event Log Validation</p>',
+        unsafe_allow_html=True,
+    )
+
+    st.write(
+        "Select the columns that represent the case ID, activity "
+        "and event timestamp in your dataset."
+    )
+
+    columns = list(df.columns)
+
+    case_default = find_column(
+        columns,
+        [
+            "case_id",
+            "case id",
+            "case",
+            "patient_id",
+            "patient id",
+            "patient",
+        ],
+    )
+
+    activity_default = find_column(
+        columns,
+        [
+            "activity",
+            "activity_name",
+            "event",
+            "event_name",
+            "concept:name",
+        ],
+    )
+
+    timestamp_default = find_column(
+        columns,
+        [
+            "timestamp",
+            "time",
+            "event_time",
+            "event timestamp",
+            "datetime",
+            "start_timestamp",
+            "time:timestamp",
+        ],
+    )
+
+    def default_index(column, fallback=0):
+        if column in columns:
+            return columns.index(column)
+        return min(fallback, len(columns) - 1)
+
+    col1, col2, col3 = st.columns(3)
+
+    with col1:
+        case_column = st.selectbox(
+            "Case ID Column",
+            columns,
+            index=default_index(case_default),
+            key="case_column_select",
+        )
+
+    with col2:
+        activity_column = st.selectbox(
+            "Activity Column",
+            columns,1
+            index=default_index(activity_default),
+            key="activity_column_select",
+        )
+
+    with col3:
+        timestamp_column = st.selectbox(
+            "Timestamp Column",
+            columns,
+            index=default_index(timestamp_default),
+            key="timestamp_column_select",
+        )
+
+    if len({case_column, activity_column, timestamp_column}) < 3:
+        st.warning(
+            "Please select three different columns for Case ID, "
+            "Activity and Timestamp."
+        )
+        return
+
+    try:
+        validation = validate_event_log(
+            df,
+            case_column,
+            activity_column,
+            timestamp_column,
+        )
+
+        st.subheader("Validation Results")
+
+        col1, col2, col3, col4 = st.columns(4)
+
+        with col1:
+            safe_metric(
+                "Total Records",
+                validation.get("total_records", len(df)),
+            )
+
+        with col2:
+            safe_metric(
+                "Valid Records",
+                validation.get("valid_records", 0),
+            )
+
+        with col3:
+            safe_metric(
+                "Unique Cases",
+                validation.get("unique_cases", 0),
+            )
+
+        with col4:
+            safe_metric(
+                "Unique Activities",
+                validation.get("unique_activities", 0),
+            )
+
+        issues = validation.get("issues", [])
+
+        if issues:
+            st.warning("Some data-quality issues were detected.")
+
+            for issue in issues:
+                st.write(f"- {issue}")
+
+        elif validation.get("valid", False):
+            st.success("The event log passed the available validation checks.")
+
+        else:
+            st.info(
+                "Review the validation results before using this "
+                "event log for process mining."
+            )
+
+        st.subheader("Filter Event Log")
+
+        col1, col2 = st.columns(2)
+
+        with col1:
+            available_cases = (
+                df[case_column]
+                .dropna()
+                .unique()
+                .tolist()
+            )
+
+            selected_cases = st.multiselect(
+                "Select Cases",
+                available_cases,
+                default=available_cases,
+                key="selected_cases_filter",
+            )
+
+        with col2:
+            available_activities = (
+                df[activity_column]
+                .dropna()
+                .unique()
+                .tolist()
+            )
+
+            selected_activities = st.multiselect(
+                "Select Activities",
+                available_activities,
+                default=available_activities,
+                key="selected_activities_filter",
+            )
+
+        filtered_df = df[
+            df[case_column].isin(selected_cases)
+            & df[activity_column].isin(selected_activities)
+        ].copy()
+
+        st.subheader("Filtered Event Log")
+
+        st.write(f"Records after filtering: **{len(filtered_df)}**")
+
+        st.dataframe(
+            filtered_df.head(100),
+            use_container_width=True,
+        )
+
+        csv_data = filtered_df.to_csv(index=False).encode("utf-8")
+
+        st.download_button(
+            label="Download Filtered Event Log",
+            data=csv_data,
+            file_name="careflow_filtered_event_log.csv",
+            mime="text/csv",
+            key="download_filtered_event_log",
+        )
+
+        st.subheader("Activity Frequency")
+
+        activity_counts = (
+            filtered_df[activity_column]
+            .value_counts()
+            .reset_index()
+        )
+
+        activity_counts.columns = ["Activity", "Count"]
+
+        if not activity_counts.empty:
+            fig = px.bar(
+                activity_counts,
+                x="Activity",
+                y="Count",
+                title="Number of Events per Activity",
+                labels={
+                    "Activity": "Clinical Activity",
+                    "Count": "Number of Events",
+                },
+            )
+
+            fig.update_layout(
+                template="plotly_white",
+                xaxis_tickangle=-35,
+            )
+
+            st.plotly_chart(fig, use_container_width=True)
+
+        else:
+            st.info("No records match the selected filters.")
+
+    except Exception as exc:
+        st.error(
+            f"Unable to validate this event log. Details: {exc}"
+        )
+
+
+# --------------------------------------------------
+# PROCESS DISCOVERY PAGE
+# --------------------------------------------------
+
+def show_process_discovery():
+
+    display_placeholder(
+        "Process Discovery",
+        """
+        This section will visualise the sequence of clinical activities
+        and help identify common patient pathways.
+
+        Process discovery will be connected to the process-mining
+        backend after the required integration is completed.
+        """,
+    )
+
+
+# --------------------------------------------------
+# BOTTLENECK ANALYSIS PAGE
+# --------------------------------------------------
+
+def show_bottleneck_analysis():
+
+    display_placeholder(
+        "Bottleneck Analysis",
+        """
+        This section will help identify activities associated with
+        long waiting times, delays and potential workflow inefficiencies.
+
+        Actual bottleneck metrics require event timestamps and
+        backend analysis.
+        """,
+    )
+
+
+# --------------------------------------------------
+# CONFORMANCE ANALYSIS PAGE
+# --------------------------------------------------
+
+def show_conformance_analysis():
+
+    display_placeholder(
+        "Conformance Analysis",
+        """
+        This section will compare observed clinical pathways with
+        an expected process model.
+
+        Conformance results will be displayed after the process model
+        and backend analysis are integrated.
+        """,
+    )
+
+
+# --------------------------------------------------
+# REPORTS PAGE
+# --------------------------------------------------
+
+def show_reports():
+
+    st.markdown(
+        '<p class="section-title">Reports</p>',
+        unsafe_allow_html=True,
+    )
+
+    df = st.session_state.get("careflow_dataset")
+
+    if df is None:
+        st.info("Upload a dataset to generate a dataset summary.")
+        return
+
+    summary = pd.DataFrame(
+        {
+            "Metric": [
+                "Dataset Filename",
+                "Total Records",
+                "Total Columns",
+                "Missing Values",
+            ],
+            "Value": [
+                st.session_state.get(
+                    "careflow_filename",
+                    "Uploaded CSV",
+                ),
+                len(df),
+                len(df.columns),
+                int(df.isnull().sum().sum()),
+            ],
+        }
+    )
+
+    st.subheader("Dataset Summary")
+    st.dataframe(summary, use_container_width=True)
+
+    report_csv = summary.to_csv(index=False).encode("utf-8")
+
+    st.download_button(
+        label="Download Dataset Summary",
+        data=report_csv,
+        file_name="careflow_dataset_summary.csv",
+        mime="text/csv",
+        key="download_dataset_summary",
+    )
+
+
+# --------------------------------------------------
+# SIDEBAR NAVIGATION
+# --------------------------------------------------
 
 with st.sidebar:
-    st.title("🏥 CareFlow")
 
-    st.caption("Clinical Pathway Process Mining")
+    st.markdown(
+        """
+        <div style="text-align:center; padding:12px 0 20px;">
+            <div style="font-size:42px;">🏥</div>
+            <h2 style="margin:0;">CareFlow</h2>
+            <p style="font-size:12px; opacity:0.8;">
+                Clinical Pathway Analytics
+            </p>
+        </div>
+        """,
+        unsafe_allow_html=True,
+    )
 
     st.divider()
 
@@ -134,758 +717,42 @@ with st.sidebar:
 
     st.divider()
 
-    st.markdown("#### Project information")
-    st.caption("Experience Builder")
-    st.caption("UI & Integration Lead")
+    st.caption("Clinical Pathway Process Mining")
 
-    st.divider()
-
-    st.caption("Clinical process analytics")
+    # Logout controls from the separate logout.py file.
+    show_logout_button()
 
 
-# ============================================================
-# 6. APPLICATION HEADER
-# ============================================================
-
-st.markdown(
-    '<p class="main-title">CareFlow</p>',
-    unsafe_allow_html=True,
-)
-
-st.markdown(
-    '<p class="subtitle">'
-    'Clinical Pathway Process Mining | Patient Journey Analytics'
-    '</p>',
-    unsafe_allow_html=True,
-)
-
-
-# ============================================================
-# 7. DATA UPLOAD
-# ============================================================
-
-# The upload widget is available from both the Dashboard
-# and Upload Dataset pages.
-
-if page in ["Dashboard", "Upload Dataset"]:
-
-    with st.expander(
-        "📂 Upload or replace a clinical dataset",
-        expanded=(page == "Upload Dataset"),
-    ):
-
-        uploaded_file = st.file_uploader(
-            "Choose a clinical pathway CSV file",
-            type=["csv"],
-            key="careflow_csv_upload",
-            help=(
-                "Upload an anonymized or synthetic event log. "
-                "Do not upload identifiable patient information."
-            ),
-        )
-
-        if uploaded_file is not None:
-
-            should_load = (
-                st.session_state.careflow_filename
-                != uploaded_file.name
-            )
-
-            if should_load:
-
-                loaded_df, error_message = load_csv(uploaded_file)
-
-                if error_message:
-                    st.error(error_message)
-
-                else:
-                    st.session_state.careflow_dataset = loaded_df
-                    st.session_state.careflow_filename = (
-                        uploaded_file.name
-                    )
-
-                    st.success(
-                        f"Loaded {len(loaded_df):,} records "
-                        f"from {uploaded_file.name}."
-                    )
-
-        if st.session_state.careflow_dataset is not None:
-
-            st.caption(
-                f"Current dataset: "
-                f"{st.session_state.careflow_filename}"
-            )
-
-
-# ============================================================
-# 8. RETRIEVE DATASET
-# ============================================================
-
-df = st.session_state.careflow_dataset
-
-
-# ============================================================
-# 9. DASHBOARD PAGE
-# ============================================================
+# --------------------------------------------------
+# PAGE ROUTING
+# --------------------------------------------------
 
 if page == "Dashboard":
-
-    st.subheader("📊 Clinical Pathway Dashboard")
-
-    st.write(
-        "Explore patient cases, clinical activities, "
-        "and event-log quality."
-    )
-
-    if df is None:
-
-        st.info(
-            "Upload a CSV file using the section above or open "
-            "'Upload Dataset' from the sidebar to begin."
-        )
-
-        st.subheader("Dashboard capabilities")
-
-        col1, col2, col3 = st.columns(3)
-
-        with col1:
-            st.markdown("### 📂 Dataset Analysis")
-            st.write(
-                "Upload an event log and inspect patient cases "
-                "and clinical activities."
-            )
-
-        with col2:
-            st.markdown("### 🔄 Process Discovery")
-            st.write(
-                "Integrate the process graph generated by "
-                "the process-mining backend."
-            )
-
-        with col3:
-            st.markdown("### 🚨 Bottleneck Analysis")
-            st.write(
-                "Display activity durations, waiting times, "
-                "and bottleneck alerts when available."
-            )
-
-    else:
-
-        # Dataset-level metrics.
-        total_records = len(df)
-        total_columns = len(df.columns)
-        missing_values = int(df.isna().sum().sum())
-
-        metric1, metric2, metric3 = st.columns(3)
-
-        metric1.metric(
-            "Total Records",
-            safe_metric(total_records),
-        )
-
-        metric2.metric(
-            "Total Columns",
-            safe_metric(total_columns),
-        )
-
-        metric3.metric(
-            "Missing Values",
-            safe_metric(missing_values),
-        )
-
-        st.divider()
-
-        st.subheader("Dataset Preview")
-
-        st.dataframe(
-            df.head(10),
-            use_container_width=True,
-            hide_index=True,
-        )
-
-        st.caption(
-            "For column selection and event-log validation, "
-            "open Upload Dataset."
-        )
-
-
-# ============================================================
-# 10. UPLOAD DATASET PAGE
-# ============================================================
+    show_dashboard()
 
 elif page == "Upload Dataset":
-
-    st.subheader("📂 Dataset Upload & Validation")
-
-    st.write(
-        "Inspect the event log, select its process-mining columns, "
-        "and check its data quality."
-    )
-
-    if df is None:
-
-        st.info(
-            "Upload a CSV file using the uploader above "
-            "to begin dataset validation."
-        )
-
-    else:
-
-        columns = list(df.columns)
-
-        st.subheader("1. Dataset Overview")
-
-        col1, col2, col3 = st.columns(3)
-
-        col1.metric(
-            "Total Records",
-            safe_metric(len(df)),
-        )
-
-        col2.metric(
-            "Total Columns",
-            safe_metric(len(columns)),
-        )
-
-        col3.metric(
-            "Missing Values",
-            safe_metric(int(df.isna().sum().sum())),
-        )
-
-        st.divider()
-
-        # ----------------------------------------------
-        # COLUMN SELECTION
-        # ----------------------------------------------
-
-        st.subheader("2. Configure Event Log")
-
-        case_default = find_column(
-            columns,
-            ["case id", "case", "patient id", "patient", "trace id"],
-            0,
-        )
-
-        activity_default = find_column(
-            columns,
-            ["activity", "event", "task", "operation"],
-            min(1, len(columns) - 1),
-        )
-
-        timestamp_default = find_column(
-            columns,
-            ["timestamp", "time", "date"],
-            min(2, len(columns) - 1),
-        )
-
-        col1, col2, col3 = st.columns(3)
-
-        with col1:
-            case_column = st.selectbox(
-                "Case ID column",
-                columns,
-                index=columns.index(case_default),
-                key="dataset_case_column",
-            )
-
-        with col2:
-            activity_column = st.selectbox(
-                "Activity column",
-                columns,
-                index=columns.index(activity_default),
-                key="dataset_activity_column",
-            )
-
-        with col3:
-            timestamp_column = st.selectbox(
-                "Timestamp column",
-                columns,
-                index=columns.index(timestamp_default),
-                key="dataset_timestamp_column",
-            )
-
-        # The same column cannot represent all three fields.
-        selected_columns = {
-            case_column,
-            activity_column,
-            timestamp_column,
-        }
-
-        if len(selected_columns) != 3:
-
-            st.warning(
-                "Select three different columns for Case ID, "
-                "Activity, and Timestamp."
-            )
-
-        else:
-
-            # ------------------------------------------
-            # VALIDATE EVENT LOG
-            # ------------------------------------------
-
-            result = validate_event_log(
-                df,
-                case_column,
-                activity_column,
-                timestamp_column,
-            )
-
-            valid_df = result.get(
-                "valid_rows",
-                pd.DataFrame(),
-            ).copy()
-
-            st.divider()
-
-            st.subheader("3. Data Quality Results")
-
-            col1, col2, col3 = st.columns(3)
-
-            col1.metric(
-                "Total Records",
-                safe_metric(len(df)),
-            )
-
-            col2.metric(
-                "Valid Records",
-                safe_metric(len(valid_df)),
-            )
-
-            col3.metric(
-                "Unique Patient Cases",
-                safe_metric(
-                    valid_df[case_column].nunique()
-                    if not valid_df.empty
-                    else 0
-                ),
-            )
-
-            col4, col5, col6 = st.columns(3)
-
-            col4.metric(
-                "Unique Activities",
-                safe_metric(
-                    valid_df[activity_column].nunique()
-                    if not valid_df.empty
-                    else 0
-                ),
-            )
-
-            col5.metric(
-                "Missing Values",
-                safe_metric(int(df.isna().sum().sum())),
-            )
-
-            col6.metric(
-                "Potential Duplicates",
-                safe_metric(
-                    int(result.get("duplicate_events", 0))
-                ),
-            )
-
-            # ------------------------------------------
-            # WARNINGS
-            # ------------------------------------------
-
-            issues = result.get("issues", [])
-
-            if issues:
-
-                st.subheader("Data Quality Warnings")
-
-                for issue in issues:
-                    st.warning(issue)
-
-            else:
-
-                st.success(
-                    "No data-quality issues were detected "
-                    "by the configured checks."
-                )
-
-            # ------------------------------------------
-            # INTERACTIVE FILTERS
-            # ------------------------------------------
-
-            st.divider()
-
-            st.subheader("4. Interactive Clinical Activity Filters")
-
-            if valid_df.empty:
-
-                st.warning(
-                    "No valid event records are available "
-                    "for filtering."
-                )
-
-            else:
-
-                filter_col1, filter_col2 = st.columns(2)
-
-                available_cases = sorted(
-                    valid_df[case_column]
-                    .astype(str)
-                    .unique()
-                    .tolist()
-                )
-
-                available_activities = sorted(
-                    valid_df[activity_column]
-                    .astype(str)
-                    .unique()
-                    .tolist()
-                )
-
-                with filter_col1:
-
-                    selected_cases = st.multiselect(
-                        "Select patient cases",
-                        options=available_cases,
-                        default=available_cases,
-                        key="filter_cases",
-                    )
-
-                with filter_col2:
-
-                    selected_activities = st.multiselect(
-                        "Select clinical activities",
-                        options=available_activities,
-                        default=available_activities,
-                        key="filter_activities",
-                    )
-
-                # Apply the filters.
-                filtered_df = valid_df[
-                    valid_df[case_column]
-                    .astype(str)
-                    .isin(selected_cases)
-                    &
-                    valid_df[activity_column]
-                    .astype(str)
-                    .isin(selected_activities)
-                ].copy()
-
-                # --------------------------------------
-                # FILTERED METRICS
-                # --------------------------------------
-
-                st.write(
-                    f"Filtered records: **{len(filtered_df):,}**"
-                )
-
-                metric1, metric2, metric3 = st.columns(3)
-
-                metric1.metric(
-                    "Filtered Records",
-                    safe_metric(len(filtered_df)),
-                )
-
-                metric2.metric(
-                    "Patient Cases",
-                    safe_metric(
-                        filtered_df[case_column].nunique()
-                    ),
-                )
-
-                metric3.metric(
-                    "Clinical Activities",
-                    safe_metric(
-                        filtered_df[activity_column].nunique()
-                    ),
-                )
-
-                # --------------------------------------
-                # ACTIVITY FREQUENCY CHART
-                # --------------------------------------
-
-                st.subheader("5. Clinical Activity Frequency")
-
-                if not filtered_df.empty:
-
-                    activity_counts = (
-                        filtered_df[activity_column]
-                        .astype(str)
-                        .value_counts()
-                        .rename_axis("Activity")
-                        .reset_index(name="Records")
-                    )
-
-                    fig = px.bar(
-                        activity_counts,
-                        x="Activity",
-                        y="Records",
-                        title="Frequency of Clinical Activities",
-                        labels={
-                            "Activity": "Clinical Activity",
-                            "Records": "Number of Records",
-                        },
-                        color="Records",
-                        color_continuous_scale="Blues",
-                    )
-
-                    fig.update_layout(
-                        template="plotly_white",
-                        xaxis_tickangle=-30,
-                    )
-
-                    st.plotly_chart(
-                        fig,
-                        use_container_width=True,
-                    )
-
-                else:
-
-                    st.warning(
-                        "No records match the selected filters."
-                    )
-
-                # --------------------------------------
-                # DOWNLOAD FILTERED DATA
-                # --------------------------------------
-
-                st.subheader("6. Download Filtered Event Log")
-
-                if not filtered_df.empty:
-
-                    filtered_csv = filtered_df.to_csv(
-                        index=False
-                    ).encode("utf-8")
-
-                    st.download_button(
-                        "⬇️ Download Filtered Dataset",
-                        data=filtered_csv,
-                        file_name="careflow_filtered_dataset.csv",
-                        mime="text/csv",
-                        key="download_filtered",
-                    )
-
-            # ------------------------------------------
-            # DATASET PREVIEW
-            # ------------------------------------------
-
-            st.divider()
-
-            st.subheader("7. Validated Dataset Preview")
-
-            if not valid_df.empty:
-
-                st.dataframe(
-                    valid_df.head(100),
-                    use_container_width=True,
-                    hide_index=True,
-                )
-
-                validated_csv = valid_df.to_csv(
-                    index=False
-                ).encode("utf-8")
-
-                st.download_button(
-                    "⬇️ Download Validated Event Log",
-                    data=validated_csv,
-                    file_name="careflow_valid_event_log.csv",
-                    mime="text/csv",
-                    key="download_validated",
-                )
-
-            else:
-
-                st.info(
-                    "There are no valid event records to preview."
-                )
-
-
-# ============================================================
-# 11. PROCESS DISCOVERY PAGE
-# ============================================================
+    show_upload_page()
 
 elif page == "Process Discovery":
-
-    st.subheader("🔄 Process Discovery")
-
-    st.write(
-        "Explore the sequence of clinical activities "
-        "in the patient journey."
-    )
-
-    if df is None:
-
-        st.info(
-            "Upload a dataset before exploring process discovery."
-        )
-
-    else:
-
-        display_placeholder(
-            "Display a process graph showing activities, "
-            "transitions, and their frequencies.",
-            "The process-discovery visualization will appear "
-            "here after backend integration.",
-        )
-
-        st.markdown(
-            """
-            **Expected backend integration**
-
-            - Process graph or visualization
-            - Activity transitions
-            - Transition frequencies
-            - Process model output
-            """
-        )
-
-
-# ============================================================
-# 12. BOTTLENECK ANALYSIS PAGE
-# ============================================================
+    show_process_discovery()
 
 elif page == "Bottleneck Analysis":
-
-    st.subheader("🚨 Bottleneck Analysis")
-
-    st.write(
-        "Identify clinical activities associated with "
-        "long durations or waiting times."
-    )
-
-    if df is None:
-
-        st.info(
-            "Upload a dataset before exploring bottleneck analysis."
-        )
-
-    else:
-
-        display_placeholder(
-            "Display activities with unusually long waiting times, "
-            "duration metrics, and bottleneck alerts.",
-            "Bottleneck results will appear here after the "
-            "team's backend analysis is integrated.",
-        )
-
-        st.markdown(
-            """
-            **Expected backend integration**
-
-            - Average activity duration
-            - Waiting-time analysis
-            - High-delay activities
-            - Bottleneck alerts
-            """
-        )
-
-
-# ============================================================
-# 13. CONFORMANCE ANALYSIS PAGE
-# ============================================================
+    show_bottleneck_analysis()
 
 elif page == "Conformance Analysis":
-
-    st.subheader("📊 Conformance Analysis")
-
-    st.write(
-        "Compare observed patient journeys with the "
-        "expected clinical process."
-    )
-
-    if df is None:
-
-        st.info(
-            "Upload a dataset before exploring conformance analysis."
-        )
-
-    else:
-
-        display_placeholder(
-            "Display conformance metrics and deviations "
-            "from the expected process.",
-            "Conformance results will appear here after "
-            "backend integration.",
-        )
-
-        st.markdown(
-            """
-            **Expected backend integration**
-
-            - Conformance score
-            - Deviations from the expected pathway
-            - Non-conforming cases
-            - Conformance result summaries
-            """
-        )
-
-
-# ============================================================
-# 14. REPORTS PAGE
-# ============================================================
+    show_conformance_analysis()
 
 elif page == "Reports":
-
-    st.subheader("📄 CareFlow Reports")
-
-    st.write(
-        "Review and download the available dataset and "
-        "analysis outputs."
-    )
-
-    if df is None:
-
-        st.info(
-            "Upload a dataset before generating dataset reports."
-        )
-
-    else:
-
-        st.subheader("Dataset Summary")
-
-        summary = pd.DataFrame(
-            {
-                "Metric": [
-                    "Total Records",
-                    "Total Columns",
-                    "Missing Values",
-                ],
-                "Value": [
-                    len(df),
-                    len(df.columns),
-                    int(df.isna().sum().sum()),
-                ],
-            }
-        )
-
-        st.dataframe(
-            summary,
-            use_container_width=True,
-            hide_index=True,
-        )
-
-        summary_csv = summary.to_csv(
-            index=False
-        ).encode("utf-8")
-
-        st.download_button(
-            "⬇️ Download Dataset Summary",
-            data=summary_csv,
-            file_name="careflow_dataset_summary.csv",
-            mime="text/csv",
-            key="download_summary",
-        )
-
-        st.divider()
-
-        st.info(
-            "Process discovery, bottleneck, and conformance reports "
-            "will be added when their backend outputs are integrated."
-        )
+    show_reports()
 
 
-# ============================================================
-# 15. FOOTER
-# ============================================================
+# --------------------------------------------------
+# FOOTER
+# --------------------------------------------------
 
 st.divider()
 
 st.caption(
     "CareFlow | Clinical Pathway Process Mining | "
-    "UI & Integration Lead"
+    "Dashboard and integration prototype"
 )
