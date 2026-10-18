@@ -111,3 +111,4 @@ def token_replay(df: pd.DataFrame, net, im, fm) -> pd.DataFrame:
         rows.append(
             {
                 "case_id": trace.attributes["concept:name"],
+                "fitness": round(d["trace_fitness"], 4),
