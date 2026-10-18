@@ -106,3 +106,4 @@ def token_replay(df: pd.DataFrame, net, im, fm) -> pd.DataFrame:
     """Replay every case on the standard model. Returns one row per case."""
     log = pm4py.convert_to_event_log(df)
     diagnostics = pm4py.conformance_diagnostics_token_based_replay(log, net, im, fm)
+    rows = []
