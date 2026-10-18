@@ -27,3 +27,6 @@ Public API (all functions are import-safe for Streamlit):
     run_full_analysis(df, out_dir)            -> dict of results
 """
 from __future__ import annotations
+import os
+import warnings
+from typing import Optional
