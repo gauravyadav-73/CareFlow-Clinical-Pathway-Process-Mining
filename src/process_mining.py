@@ -26,3 +26,4 @@ Public API (all functions are import-safe for Streamlit):
     filter_log(df, ...)                       -> DataFrame
     run_full_analysis(df, out_dir)            -> dict of results
 """
+from __future__ import annotations
