@@ -108,3 +108,4 @@ def token_replay(df: pd.DataFrame, net, im, fm) -> pd.DataFrame:
     diagnostics = pm4py.conformance_diagnostics_token_based_replay(log, net, im, fm)
     rows = []
     for trace, d in zip(log, diagnostics):
+        rows.append(
