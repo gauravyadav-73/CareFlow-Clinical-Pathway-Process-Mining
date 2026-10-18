@@ -110,3 +110,4 @@ def token_replay(df: pd.DataFrame, net, im, fm) -> pd.DataFrame:
     for trace, d in zip(log, diagnostics):
         rows.append(
             {
+                "case_id": trace.attributes["concept:name"],
