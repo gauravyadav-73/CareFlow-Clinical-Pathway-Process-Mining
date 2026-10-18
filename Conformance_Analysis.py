@@ -109,3 +109,4 @@ def token_replay(df: pd.DataFrame, net, im, fm) -> pd.DataFrame:
     rows = []
     for trace, d in zip(log, diagnostics):
         rows.append(
+            {
