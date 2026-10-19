@@ -35,3 +35,6 @@ import pandas as pd
 import pm4py
 
 warnings.filterwarnings("ignore")
+
+# Standard column names used across the whole project
+CASE_COL = "case_id"
