@@ -114,3 +114,4 @@ def token_replay(df: pd.DataFrame, net, im, fm) -> pd.DataFrame:
                 "fitness": round(d["trace_fitness"], 4),
                 "is_fit": bool(d["trace_is_fit"]),
                 "missing_tokens": d["missing_tokens"],
+                "remaining_tokens": d["remaining_tokens"],
