@@ -118,3 +118,8 @@ def token_replay(df: pd.DataFrame, net, im, fm) -> pd.DataFrame:
             }
         )
     return pd.DataFrame(rows)
+
+
+# --------------------------------------------------------------------------
+# 4. RULE-BASED DEVIATION DETECTION (explainable for clinicians)
+# --------------------------------------------------------------------------
