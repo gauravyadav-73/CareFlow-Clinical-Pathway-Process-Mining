@@ -38,3 +38,6 @@ warnings.filterwarnings("ignore")
 
 # Standard column names used across the whole project
 CASE_COL = "case_id"
+
+# Accepted aliases so the Data Engineer's file works without renaming
+_ALIASES = {
