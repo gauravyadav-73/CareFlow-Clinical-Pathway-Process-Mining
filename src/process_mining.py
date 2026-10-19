@@ -41,3 +41,8 @@ CASE_COL = "case_id"
 
 # Accepted aliases so the Data Engineer's file works without renaming
 _ALIASES = {
+        CASE_COL: ["case_id", "case:concept:name", "Case ID", "case", "patient_id", "caseid"],
+    ACT_COL: ["activity", "concept:name", "Activity", "event", "task"],
+    TS_COL: ["timestamp", "time:timestamp", "Timestamp", "time", "datetime", "start_time"],
+}
+
