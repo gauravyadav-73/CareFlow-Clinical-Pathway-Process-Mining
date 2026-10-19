@@ -33,3 +33,5 @@ from typing import Optional
 
 import pandas as pd
 import pm4py
+
+warnings.filterwarnings("ignore")
