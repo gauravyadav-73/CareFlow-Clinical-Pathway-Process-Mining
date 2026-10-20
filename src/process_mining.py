@@ -51,3 +51,4 @@ _ALIASES = {
 # --------------------------------------------------------------------------- #
 def load_event_log(path: str) -> pd.DataFrame:
         """Load a .csv or .xes event log into a clean DataFrame."""
+        ext = os.path.splitext(path)[1].lower()
