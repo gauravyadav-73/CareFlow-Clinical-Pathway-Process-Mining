@@ -127,3 +127,4 @@ def token_replay(df: pd.DataFrame, net, im, fm) -> pd.DataFrame:
 def detect_deviations(df: pd.DataFrame) -> pd.DataFrame:
     """Return one row per (case, deviation) with type and description."""
     out = []
+    for case_id, g in df.groupby(CASE):
