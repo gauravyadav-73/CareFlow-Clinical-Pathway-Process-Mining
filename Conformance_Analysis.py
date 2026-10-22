@@ -132,3 +132,4 @@ def detect_deviations(df: pd.DataFrame) -> pd.DataFrame:
 
         # Missing mandatory steps
         for step in MANDATORY_STEPS:
+            if step not in acts:
