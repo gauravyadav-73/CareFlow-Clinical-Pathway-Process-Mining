@@ -58,3 +58,4 @@ def load_event_log(path: str) -> pd.DataFrame:
                 df = pd.read_csv(path)
         else:
                 raise ValueError(f"Unsupported file type: {ext} (use .csv or .xes)")
+        return prepare_log(df)
