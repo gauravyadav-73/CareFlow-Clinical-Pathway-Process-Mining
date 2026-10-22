@@ -129,3 +129,5 @@ def detect_deviations(df: pd.DataFrame) -> pd.DataFrame:
     out = []
     for case_id, g in df.groupby(CASE):
         acts = g[ACT].tolist()
+
+        # Missing mandatory steps
