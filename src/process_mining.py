@@ -54,3 +54,4 @@ def load_event_log(path: str) -> pd.DataFrame:
         ext = os.path.splitext(path)[1].lower()
         if ext == ".xes" or path.lower().endswith(".xes.gz"):
                 df = pm4py.convert_to_dataframe(pm4py.read_xes(path))
+        elif ext == ".csv":
