@@ -407,7 +407,7 @@ def show_upload_page():
     with col2:
         activity_column = st.selectbox(
             "Activity Column",
-            columns,1
+            columns,
             index=default_index(activity_default),
             key="activity_column_select",
         )
