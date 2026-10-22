@@ -131,3 +131,4 @@ def detect_deviations(df: pd.DataFrame) -> pd.DataFrame:
         acts = g[ACT].tolist()
 
         # Missing mandatory steps
+        for step in MANDATORY_STEPS:
