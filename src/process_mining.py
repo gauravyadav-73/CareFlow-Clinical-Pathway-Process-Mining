@@ -61,3 +61,4 @@ def load_event_log(path: str) -> pd.DataFrame:
         return prepare_log(df)
 def prepare_log(df: pd.DataFrame) -> pd.DataFrame:
         """Normalise column names, parse timestamps, sort, and add PM4Py columns."""
+        df = df.copy()
