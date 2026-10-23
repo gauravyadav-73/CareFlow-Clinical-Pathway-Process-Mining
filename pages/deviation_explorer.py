@@ -5,37 +5,7 @@ import plotly.express as px
 import streamlit as st
 
 from components.charts import COLORS, apply_chart_theme
-
-
-def _case_pathways(
-    df: pd.DataFrame,
-    case_column: str,
-    activity_column: str,
-    timestamp_column: str,
-) -> list[tuple[str, tuple[str, ...]]]:
-    """Return valid case IDs and their chronologically ordered activities."""
-
-    data = df[[case_column, activity_column, timestamp_column]].copy()
-    data[timestamp_column] = pd.to_datetime(
-        data[timestamp_column],
-        errors="coerce",
-        utc=True,
-    )
-    data = data.dropna(
-        subset=[case_column, activity_column, timestamp_column]
-    )
-    if data.empty:
-        return []
-
-    data[activity_column] = data[activity_column].astype(str)
-    data = data.sort_values(
-        [case_column, timestamp_column],
-        kind="mergesort",
-    )
-    return [
-        (str(case_id), tuple(events[activity_column].tolist()))
-        for case_id, events in data.groupby(case_column, sort=False)
-    ]
+from utils.process_mining import build_case_traces
 
 
 def _describe_deviation(
@@ -90,12 +60,15 @@ def render_deviation_explorer(
         )
         return
 
-    case_pathways = _case_pathways(
+    case_pathways = [
+        (str(case_id), pathway)
+        for case_id, pathway in build_case_traces(
         df,
         case_column,
         activity_column,
         timestamp_column,
-    )
+        )
+    ]
     if not case_pathways:
         st.info(
             "No complete case pathways were found. Check the selected "

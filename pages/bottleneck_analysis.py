@@ -3,6 +3,8 @@ import plotly.express as px
 import streamlit as st
 
 from components.charts import COLORS, apply_chart_theme
+from utils.analytics import calculate_event_gaps, summarize_activity_gaps
+from utils.insights import generate_gap_insights
 
 
 def _event_gaps(
@@ -12,33 +14,12 @@ def _event_gaps(
     timestamp_column: str,
 ) -> pd.DataFrame:
     """Return elapsed time from each event to the next event in its case."""
-
-    data = df[[case_column, activity_column, timestamp_column]].copy()
-    data[timestamp_column] = pd.to_datetime(
-        data[timestamp_column],
-        errors="coerce",
-        utc=True,
+    return calculate_event_gaps(
+        df,
+        case_column,
+        activity_column,
+        timestamp_column,
     )
-    data = data.dropna(
-        subset=[case_column, activity_column, timestamp_column]
-    )
-
-    if data.empty:
-        return pd.DataFrame()
-
-    data[activity_column] = data[activity_column].astype(str)
-    data = data.sort_values(
-        [case_column, timestamp_column],
-        kind="mergesort",
-    )
-    grouped = data.groupby(case_column, sort=False)
-    data["Next Activity"] = grouped[activity_column].shift(-1)
-    data["Next Timestamp"] = grouped[timestamp_column].shift(-1)
-    data["Elapsed Hours"] = (
-        data["Next Timestamp"] - data[timestamp_column]
-    ).dt.total_seconds() / 3600
-
-    return data.dropna(subset=["Elapsed Hours"]).copy()
 
 
 def render_bottleneck_analysis(
@@ -83,28 +64,17 @@ def render_bottleneck_analysis(
         )
         return
 
-    summary = (
-        gaps.groupby(activity_column, observed=True)
-        .agg(
-            **{
-                "Average Gap (hours)": ("Elapsed Hours", "mean"),
-                "Median Gap (hours)": ("Elapsed Hours", "median"),
-                "90th Percentile Gap (hours)": (
-                    "Elapsed Hours",
-                    lambda values: values.quantile(0.9),
-                ),
-                "Transitions": ("Elapsed Hours", "size"),
-                "Cases": (case_column, "nunique"),
-            }
-        )
-        .reset_index()
-        .rename(columns={activity_column: "Preceding Activity"})
+    summary = summarize_activity_gaps(
+        df,
+        case_column,
+        activity_column,
+        timestamp_column,
     )
 
     metric_options = {
-        "90th percentile gap": "90th Percentile Gap (hours)",
-        "Median gap": "Median Gap (hours)",
-        "Average gap": "Average Gap (hours)",
+        "90th percentile gap": "90th percentile gap (hours)",
+        "Median gap": "Median gap (hours)",
+        "Average gap": "Average gap (hours)",
     }
     selected_metric = st.selectbox(
         "Rank activities by",
@@ -121,7 +91,7 @@ def render_bottleneck_analysis(
     case_count = int(gaps[case_column].nunique())
     overall_median = float(gaps["Elapsed Hours"].median())
     overall_p90 = float(gaps["Elapsed Hours"].quantile(0.9))
-    leading_activity = str(summary.iloc[0]["Preceding Activity"])
+    leading_activity = str(summary.iloc[0]["Preceding activity"])
     leading_gap = float(summary.iloc[0][ranking_column])
 
     metric_columns = st.columns(4)
@@ -139,12 +109,12 @@ def render_bottleneck_analysis(
     fig = px.bar(
         chart_data,
         x=ranking_column,
-        y="Preceding Activity",
+        y="Preceding activity",
         orientation="h",
         text=ranking_column,
         labels={
             ranking_column: selected_metric.title() + " (hours)",
-            "Preceding Activity": "Preceding activity",
+            "Preceding activity": "Preceding activity",
         },
     )
     fig.update_traces(
@@ -174,14 +144,18 @@ def render_bottleneck_analysis(
     st.dataframe(
         summary.round(
             {
-                "Average Gap (hours)": 2,
-                "Median Gap (hours)": 2,
-                "90th Percentile Gap (hours)": 2,
+                "Average gap (hours)": 2,
+                "Median gap (hours)": 2,
+                "90th percentile gap (hours)": 2,
+                "Total gap (hours)": 2,
             }
         ),
         use_container_width=True,
         hide_index=True,
     )
+    with st.expander("Observed data insights"):
+        for insight in generate_gap_insights(summary):
+            st.write(f"- {insight}")
     st.download_button(
         "Download bottleneck summary",
         data=summary.to_csv(index=False).encode("utf-8"),

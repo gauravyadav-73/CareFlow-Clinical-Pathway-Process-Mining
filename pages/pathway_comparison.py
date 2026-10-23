@@ -5,32 +5,7 @@ import plotly.graph_objects as go
 import streamlit as st
 
 from components.charts import COLORS, apply_chart_theme
-
-
-def _compare_pathways(
-    first: tuple[str, ...],
-    second: tuple[str, ...],
-) -> pd.DataFrame:
-    """Align pathway events by sequence position for a readable comparison."""
-
-    max_length = max(len(first), len(second))
-    rows = []
-    for index in range(max_length):
-        first_activity = first[index] if index < len(first) else "—"
-        second_activity = second[index] if index < len(second) else "—"
-        rows.append(
-            {
-                "Step": index + 1,
-                "Pathway A": first_activity,
-                "Pathway B": second_activity,
-                "Match": (
-                    "Yes"
-                    if first_activity == second_activity
-                    else "No"
-                ),
-            }
-        )
-    return pd.DataFrame(rows)
+from utils.process_mining import compare_traces
 
 
 def render_pathway_comparison(
@@ -176,7 +151,7 @@ def render_pathway_comparison(
 
     st.subheader("Position-by-position comparison")
     st.dataframe(
-        _compare_pathways(first_pathway, second_pathway),
+        compare_traces(first_pathway, second_pathway),
         use_container_width=True,
         hide_index=True,
     )

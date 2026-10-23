@@ -3,52 +3,7 @@ import plotly.express as px
 import streamlit as st
 
 from components.charts import COLORS, apply_chart_theme
-
-
-def _activity_gap_summary(
-    df: pd.DataFrame,
-    case_column: str,
-    activity_column: str,
-    timestamp_column: str,
-) -> pd.DataFrame:
-    data = df[[case_column, activity_column, timestamp_column]].copy()
-    data[timestamp_column] = pd.to_datetime(
-        data[timestamp_column],
-        errors="coerce",
-        utc=True,
-    )
-    data = data.dropna(
-        subset=[case_column, activity_column, timestamp_column]
-    )
-    if data.empty:
-        return pd.DataFrame()
-
-    data[activity_column] = data[activity_column].astype(str)
-    data = data.sort_values([case_column, timestamp_column], kind="mergesort")
-    grouped = data.groupby(case_column, sort=False)
-    data["Next Timestamp"] = grouped[timestamp_column].shift(-1)
-    data["Gap Hours"] = (
-        data["Next Timestamp"] - data[timestamp_column]
-    ).dt.total_seconds() / 3600
-    transitions = data.dropna(subset=["Gap Hours"]).copy()
-    if transitions.empty:
-        return pd.DataFrame()
-
-    return (
-        transitions.groupby(activity_column, observed=True)
-        .agg(
-            **{
-                "Average gap (hours)": ("Gap Hours", "mean"),
-                "Median gap (hours)": ("Gap Hours", "median"),
-                "Total gap (hours)": ("Gap Hours", "sum"),
-                "Transitions": ("Gap Hours", "size"),
-                "Cases": (case_column, "nunique"),
-            }
-        )
-        .reset_index()
-        .rename(columns={activity_column: "Preceding activity"})
-        .sort_values("Average gap (hours)", ascending=False)
-    )
+from utils.analytics import summarize_activity_gaps
 
 
 def render_what_if_simulator(
@@ -80,7 +35,7 @@ def render_what_if_simulator(
         )
         return
 
-    summary = _activity_gap_summary(
+    summary = summarize_activity_gaps(
         df,
         case_column,
         activity_column,

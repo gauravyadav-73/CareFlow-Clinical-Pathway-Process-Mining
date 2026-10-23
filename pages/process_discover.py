@@ -1,51 +1,10 @@
-from collections import Counter
-
 import pandas as pd
 import plotly.graph_objects as go
 import streamlit as st
 
 from components.charts import COLORS, apply_chart_theme
-
-
-def _prepare_event_log(
-    df: pd.DataFrame,
-    case_column: str,
-    activity_column: str,
-    timestamp_column: str,
-) -> pd.DataFrame:
-    data = df[[case_column, activity_column, timestamp_column]].copy()
-    data[timestamp_column] = pd.to_datetime(
-        data[timestamp_column],
-        errors="coerce",
-        utc=True,
-    )
-    data = data.dropna(
-        subset=[case_column, activity_column, timestamp_column]
-    )
-    data[activity_column] = data[activity_column].astype(str)
-    return data.sort_values([case_column, timestamp_column], kind="mergesort")
-
-
-def _discover_transitions(
-    data: pd.DataFrame,
-    case_column: str,
-    activity_column: str,
-    max_steps: int,
-) -> tuple[Counter, Counter]:
-    transitions: Counter = Counter()
-    pathways: Counter = Counter()
-
-    for _, events in data.groupby(case_column, sort=False):
-        activities = tuple(events[activity_column].iloc[:max_steps])
-        if not activities:
-            continue
-        pathways[activities] += 1
-        for index, (source, target) in enumerate(
-            zip(activities, activities[1:])
-        ):
-            transitions[((source, index), (target, index + 1))] += 1
-
-    return transitions, pathways
+from utils.analytics import prepare_event_log
+from utils.process_mining import discover_transitions
 
 
 def render_process_discovery(
@@ -77,7 +36,7 @@ def render_process_discovery(
         )
         return
 
-    data = _prepare_event_log(
+    data = prepare_event_log(
         df,
         case_column,
         activity_column,
@@ -111,10 +70,11 @@ def render_process_discovery(
             value=min(max_available_steps, 12),
             key="process_discovery_max_steps",
         )
-    transitions, pathways = _discover_transitions(
-        data,
+    transitions, pathways = discover_transitions(
+        df,
         case_column,
         activity_column,
+        timestamp_column,
         max_steps,
     )
     case_count = int(data[case_column].nunique())

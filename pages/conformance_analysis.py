@@ -1,73 +1,9 @@
-from bisect import bisect_left
-from collections import Counter, defaultdict
+from collections import Counter
 
 import pandas as pd
 import streamlit as st
 
-
-def _activity_sequences(
-    df: pd.DataFrame,
-    case_column: str,
-    activity_column: str,
-    timestamp_column: str,
-) -> list[tuple[object, tuple[str, ...]]]:
-    """Build chronologically ordered activity sequences for valid cases."""
-
-    data = df[[case_column, activity_column, timestamp_column]].copy()
-    data[timestamp_column] = pd.to_datetime(
-        data[timestamp_column],
-        errors="coerce",
-        utc=True,
-    )
-    data = data.dropna(
-        subset=[case_column, activity_column, timestamp_column]
-    )
-
-    if data.empty:
-        return []
-
-    data[activity_column] = data[activity_column].astype(str)
-    data = data.sort_values(
-        [case_column, timestamp_column],
-        kind="mergesort",
-    )
-    return [
-        (case_id, tuple(events[activity_column].tolist()))
-        for case_id, events in data.groupby(case_column, sort=False)
-    ]
-
-
-def _pathway_diff(
-    expected: tuple[str, ...],
-    observed: tuple[str, ...],
-) -> tuple[list[str], list[str], bool]:
-    """Find expected activities missing in order and unmatched observed ones."""
-
-    observed_positions: dict[str, list[int]] = defaultdict(list)
-    for index, activity in enumerate(observed):
-        observed_positions[activity].append(index)
-
-    matched_positions: set[int] = set()
-    missing: list[str] = []
-    cursor = 0
-    for activity in expected:
-        positions = observed_positions.get(activity, [])
-        position_index = bisect_left(positions, cursor)
-        if position_index == len(positions):
-            missing.append(activity)
-            continue
-
-        matched_position = positions[position_index]
-        matched_positions.add(matched_position)
-        cursor = matched_position + 1
-
-    additional = [
-        activity
-        for index, activity in enumerate(observed)
-        if index not in matched_positions
-    ]
-    is_ordered_subsequence = not missing
-    return missing, additional, is_ordered_subsequence
+from utils.process_mining import build_case_traces, conformance_report
 
 
 def _format_pathway(pathway: tuple[str, ...], max_length: int = 90) -> str:
@@ -106,7 +42,7 @@ def render_conformance_analysis(
         )
         return
 
-    case_sequences = _activity_sequences(
+    case_sequences = build_case_traces(
         df,
         case_column,
         activity_column,
@@ -156,27 +92,13 @@ def render_conformance_analysis(
         key="conformance_rule",
     )
 
-    results: list[dict[str, object]] = []
-    for case_id, observed in case_sequences:
-        missing, additional, is_subsequence = _pathway_diff(reference, observed)
-        is_exact = observed == reference
-        conforms = (
-            is_exact
-            if comparison_mode == "Exact pathway"
-            else is_subsequence
-        )
-        results.append(
-            {
-                "Case ID": str(case_id),
-                "Events": len(observed),
-                "Conformance": "Conformant" if conforms else "Deviation",
-                "Observed pathway": " → ".join(observed),
-                "Missing / out-of-order activities": " → ".join(missing) or "—",
-                "Additional activities": " → ".join(additional) or "—",
-            }
-        )
-
-    results_df = pd.DataFrame(results)
+    results_df = conformance_report(
+        case_sequences,
+        reference,
+        allow_additional=(
+            comparison_mode == "Allow additional activities in order"
+        ),
+    )
     conformant_count = int(results_df["Conformance"].eq("Conformant").sum())
     total_cases = len(results_df)
     conformance_rate = conformant_count / total_cases * 100
