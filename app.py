@@ -5,6 +5,8 @@ import plotly.express as px
 from utils.data_loader import load_csv, validate_event_log
 from pages.bottleneck_analysis import render_bottleneck_analysis
 from pages.conformance_analysis import render_conformance_analysis
+from pages.dashboard import render_dashboard
+from pages.deviation_explorer import render_deviation_explorer
 from login import require_login
 from logout import show_logout_button
 
@@ -243,88 +245,12 @@ def upload_dataset():
 # --------------------------------------------------
 
 def show_dashboard():
-
-    st.markdown(
-        '<p class="main-title">CareFlow</p>',
-        unsafe_allow_html=True,
-    )
-
-    st.markdown(
-        '<p class="subtitle">'
-        'Clinical Pathway Process Mining and Analysis'
-        '</p>',
-        unsafe_allow_html=True,
-    )
-
-    st.markdown(
-        """
-        <div class="info-card">
-            <h3 style="color:#102a43;">Welcome to CareFlow</h3>
-            <p style="color:#486581;">
-                CareFlow helps analyse clinical event logs, understand
-                patient pathways, identify potential bottlenecks and
-                support process improvement.
-            </p>
-        </div>
-        """,
-        unsafe_allow_html=True,
-    )
-
-    df = st.session_state.get("careflow_dataset")
-
-    if df is None:
-        st.info(
-            "No dataset has been uploaded yet. "
-            "Open the Upload Dataset page to get started."
-        )
-
-        col1, col2, col3 = st.columns(3)
-
-        with col1:
-            st.markdown("### 📂")
-            st.subheader("Upload Data")
-            st.write("Import clinical event logs in CSV format.")
-
-        with col2:
-            st.markdown("### 🔍")
-            st.subheader("Discover Processes")
-            st.write("Explore patient activities and clinical pathways.")
-
-        with col3:
-            st.markdown("### 🚦")
-            st.subheader("Find Bottlenecks")
-            st.write("Prepare to investigate delays in clinical processes.")
-
-        return
-
-    st.subheader("Dataset Overview")
-
-    col1, col2, col3, col4 = st.columns(4)
-
-    with col1:
-        safe_metric("Total Events", len(df))
-
-    with col2:
-        safe_metric("Total Columns", len(df.columns))
-
-    with col3:
-        safe_metric(
-            "Missing Values",
-            int(df.isnull().sum().sum()),
-        )
-
-    with col4:
-        safe_metric(
-            "Unique Activities",
-            int(df.nunique().sum()),
-        )
-
-    st.subheader("Recent Dataset Records")
-    st.dataframe(df.head(10), use_container_width=True)
-
-    st.caption(
-        f"Current dataset: "
-        f"{st.session_state.get('careflow_filename', 'Uploaded CSV')}"
+    render_dashboard(
+        st.session_state.get("careflow_dataset"),
+        st.session_state.get("careflow_filename"),
+        st.session_state.get("case_column_select"),
+        st.session_state.get("activity_column_select"),
+        st.session_state.get("timestamp_column_select"),
     )
 
 
@@ -702,6 +628,7 @@ with st.sidebar:
             "Process Discovery",
             "Bottleneck Analysis",
             "Conformance Analysis",
+            "Deviation Explorer",
             "Reports",
         ],
         key="careflow_navigation",
@@ -733,6 +660,14 @@ elif page == "Bottleneck Analysis":
 
 elif page == "Conformance Analysis":
     show_conformance_analysis()
+
+elif page == "Deviation Explorer":
+    render_deviation_explorer(
+        st.session_state.get("careflow_dataset"),
+        st.session_state.get("case_column_select"),
+        st.session_state.get("activity_column_select"),
+        st.session_state.get("timestamp_column_select"),
+    )
 
 elif page == "Reports":
     show_reports()
