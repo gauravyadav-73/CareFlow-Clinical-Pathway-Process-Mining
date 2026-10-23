@@ -60,3 +60,4 @@ def load_event_log(path: str) -> pd.DataFrame:
                 raise ValueError(f"Unsupported file type: {ext} (use .csv or .xes)")
         return prepare_log(df)
 def prepare_log(df: pd.DataFrame) -> pd.DataFrame:
+        """Normalise column names, parse timestamps, sort, and add PM4Py columns."""
