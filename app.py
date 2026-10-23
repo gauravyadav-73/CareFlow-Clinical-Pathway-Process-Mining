@@ -1,5 +1,4 @@
 import streamlit as st
-import pandas as pd
 import plotly.express as px
 
 from utils.data_loader import load_csv, validate_event_log
@@ -7,6 +6,12 @@ from pages.bottleneck_analysis import render_bottleneck_analysis
 from pages.conformance_analysis import render_conformance_analysis
 from pages.dashboard import render_dashboard
 from pages.deviation_explorer import render_deviation_explorer
+from pages.pathway_comparison import render_pathway_comparison
+from pages.patient_journey import render_patient_journey
+from pages.process_discover import render_process_discovery
+from pages.reports import render_reports
+from pages.upload_dataset import render_upload_dataset
+from pages.what_if_simulator import render_what_if_simulator
 from login import require_login
 from logout import show_logout_button
 
@@ -509,16 +514,11 @@ def show_upload_page():
 # --------------------------------------------------
 
 def show_process_discovery():
-
-    display_placeholder(
-        "Process Discovery",
-        """
-        This section will visualise the sequence of clinical activities
-        and help identify common patient pathways.
-
-        Process discovery will be connected to the process-mining
-        backend after the required integration is completed.
-        """,
+    render_process_discovery(
+        st.session_state.get("careflow_dataset"),
+        st.session_state.get("case_column_select"),
+        st.session_state.get("activity_column_select"),
+        st.session_state.get("timestamp_column_select"),
     )
 
 
@@ -553,49 +553,12 @@ def show_conformance_analysis():
 # --------------------------------------------------
 
 def show_reports():
-
-    st.markdown(
-        '<p class="section-title">Reports</p>',
-        unsafe_allow_html=True,
-    )
-
-    df = st.session_state.get("careflow_dataset")
-
-    if df is None:
-        st.info("Upload a dataset to generate a dataset summary.")
-        return
-
-    summary = pd.DataFrame(
-        {
-            "Metric": [
-                "Dataset Filename",
-                "Total Records",
-                "Total Columns",
-                "Missing Values",
-            ],
-            "Value": [
-                st.session_state.get(
-                    "careflow_filename",
-                    "Uploaded CSV",
-                ),
-                len(df),
-                len(df.columns),
-                int(df.isnull().sum().sum()),
-            ],
-        }
-    )
-
-    st.subheader("Dataset Summary")
-    st.dataframe(summary, use_container_width=True)
-
-    report_csv = summary.to_csv(index=False).encode("utf-8")
-
-    st.download_button(
-        label="Download Dataset Summary",
-        data=report_csv,
-        file_name="careflow_dataset_summary.csv",
-        mime="text/csv",
-        key="download_dataset_summary",
+    render_reports(
+        st.session_state.get("careflow_dataset"),
+        st.session_state.get("careflow_filename"),
+        st.session_state.get("case_column_select"),
+        st.session_state.get("activity_column_select"),
+        st.session_state.get("timestamp_column_select"),
     )
 
 
@@ -626,6 +589,9 @@ with st.sidebar:
             "Dashboard",
             "Upload Dataset",
             "Process Discovery",
+            "Pathway Comparison",
+            "Patient Journey",
+            "What-if Simulator",
             "Bottleneck Analysis",
             "Conformance Analysis",
             "Deviation Explorer",
@@ -650,10 +616,34 @@ if page == "Dashboard":
     show_dashboard()
 
 elif page == "Upload Dataset":
-    show_upload_page()
+    render_upload_dataset()
 
 elif page == "Process Discovery":
     show_process_discovery()
+
+elif page == "Pathway Comparison":
+    render_pathway_comparison(
+        st.session_state.get("careflow_dataset"),
+        st.session_state.get("case_column_select"),
+        st.session_state.get("activity_column_select"),
+        st.session_state.get("timestamp_column_select"),
+    )
+
+elif page == "Patient Journey":
+    render_patient_journey(
+        st.session_state.get("careflow_dataset"),
+        st.session_state.get("case_column_select"),
+        st.session_state.get("activity_column_select"),
+        st.session_state.get("timestamp_column_select"),
+    )
+
+elif page == "What-if Simulator":
+    render_what_if_simulator(
+        st.session_state.get("careflow_dataset"),
+        st.session_state.get("case_column_select"),
+        st.session_state.get("activity_column_select"),
+        st.session_state.get("timestamp_column_select"),
+    )
 
 elif page == "Bottleneck Analysis":
     show_bottleneck_analysis()
