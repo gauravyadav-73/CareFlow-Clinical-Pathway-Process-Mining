@@ -3,6 +3,8 @@ import pandas as pd
 import plotly.express as px
 
 from utils.data_loader import load_csv, validate_event_log
+from pages.bottleneck_analysis import render_bottleneck_analysis
+from pages.conformance_analysis import render_conformance_analysis
 from login import require_login
 from logout import show_logout_button
 
@@ -599,16 +601,11 @@ def show_process_discovery():
 # --------------------------------------------------
 
 def show_bottleneck_analysis():
-
-    display_placeholder(
-        "Bottleneck Analysis",
-        """
-        This section will help identify activities associated with
-        long waiting times, delays and potential workflow inefficiencies.
-
-        Actual bottleneck metrics require event timestamps and
-        backend analysis.
-        """,
+    render_bottleneck_analysis(
+        st.session_state.get("careflow_dataset"),
+        st.session_state.get("case_column_select"),
+        st.session_state.get("activity_column_select"),
+        st.session_state.get("timestamp_column_select"),
     )
 
 
@@ -617,16 +614,11 @@ def show_bottleneck_analysis():
 # --------------------------------------------------
 
 def show_conformance_analysis():
-
-    display_placeholder(
-        "Conformance Analysis",
-        """
-        This section will compare observed clinical pathways with
-        an expected process model.
-
-        Conformance results will be displayed after the process model
-        and backend analysis are integrated.
-        """,
+    render_conformance_analysis(
+        st.session_state.get("careflow_dataset"),
+        st.session_state.get("case_column_select"),
+        st.session_state.get("activity_column_select"),
+        st.session_state.get("timestamp_column_select"),
     )
 
 
