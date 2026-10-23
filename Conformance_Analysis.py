@@ -136,3 +136,4 @@ def detect_deviations(df: pd.DataFrame) -> pd.DataFrame:
                 out.append((case_id, "Missing step", f"'{step}' never happened"))
     # Wrong order: check each pair of mandatory steps that both occurred
     first_pos = {a: acts.index(a) for a in MANDATORY_STEPS if a in acts}
+    for i, a in enumerate(MANDATORY_STEPS):
