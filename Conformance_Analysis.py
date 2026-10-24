@@ -137,3 +137,4 @@ def detect_deviations(df: pd.DataFrame) -> pd.DataFrame:
     # Wrong order: check each pair of mandatory steps that both occurred
     first_pos = {a: acts.index(a) for a in MANDATORY_STEPS if a in acts}
     for i, a in enumerate(MANDATORY_STEPS):
+        for b in MANDATORY_STEPS[i + 1:]:
