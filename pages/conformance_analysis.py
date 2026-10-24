@@ -118,7 +118,7 @@ def render_conformance_analysis(
         )
 
     st.subheader("Case-level conformance")
-    st.dataframe(results_df, use_container_width=True, hide_index=True)
+    st.dataframe(results_df, width="stretch", hide_index=True)
     st.download_button(
         "Download conformance results",
         data=results_df.to_csv(index=False).encode("utf-8"),
@@ -141,7 +141,7 @@ def render_conformance_analysis(
     st.subheader("Most frequent observed pathways")
     st.dataframe(
         variants_df.round({"Share (%)": 1}),
-        use_container_width=True,
+        width="stretch",
         hide_index=True,
     )
     st.caption(

@@ -1,3 +1,5 @@
+from html import escape
+
 import pandas as pd
 import plotly.express as px
 import streamlit as st
@@ -14,37 +16,52 @@ def render_dashboard(
 ) -> None:
     """Render the CareFlow overview and event-log summary."""
 
-    st.markdown('<p class="main-title">CareFlow</p>', unsafe_allow_html=True)
-    st.markdown(
-        '<p class="subtitle">Clinical Pathway Process Mining and Analysis</p>',
-        unsafe_allow_html=True,
+    dataset_available = df is not None and not df.empty
+    dataset_label = (
+        escape(filename)
+        if dataset_available and filename
+        else "Workspace overview"
     )
-
+    status_label = (
+        f"Dataset ready · {dataset_label}"
+        if dataset_available
+        else "Workspace ready · upload an event log to begin"
+    )
     st.markdown(
-        """
-        <div class="info-card">
-            <h3 style="color:#102a43;">Clinical pathway overview</h3>
-            <p style="color:#486581;">
-                Review uploaded event-log quality, activity patterns and
-                recorded event timing to understand care pathways.
+        f"""
+        <section class="cf-dashboard-hero">
+            <div class="cf-dashboard-kicker">CareFlow · Clinical intelligence</div>
+            <h1 class="cf-dashboard-title">Clinical operations overview</h1>
+            <p class="cf-dashboard-copy">
+                A clearer view of patient pathways, activity patterns, and
+                opportunities to improve how care flows.
             </p>
-        </div>
+            <div class="cf-live-pill">
+                <span class="cf-live-dot"></span>
+                {status_label}
+            </div>
+        </section>
         """,
         unsafe_allow_html=True,
     )
 
-    if df is None or df.empty:
+    if not dataset_available:
         st.info(
-            "No dataset has been uploaded yet. Open the Upload Dataset page "
-            "to get started."
+            "Your analysis workspace is ready. Upload a clinical event log "
+            "and map its case, activity, and timestamp columns to unlock the "
+            "pathway analytics."
         )
+        st.subheader("Your workflow")
         col1, col2, col3 = st.columns(3)
-        col1.markdown("### Upload data")
-        col1.write("Import clinical event logs in CSV format.")
-        col2.markdown("### Explore pathways")
-        col2.write("Review patient activities and pathway variations.")
-        col3.markdown("### Investigate delays")
-        col3.write("Find long gaps between recorded events.")
+        with col1:
+            st.markdown("### 01 · Bring in your data")
+            st.write("Upload a CSV event log and map its key event fields.")
+        with col2:
+            st.markdown("### 02 · Discover the process")
+            st.write("See the activities and routes patients follow.")
+        with col3:
+            st.markdown("### 03 · Find opportunities")
+            st.write("Compare pathways and investigate event-time gaps.")
         return
 
     valid_roles = (
@@ -79,13 +96,13 @@ def render_dashboard(
             ("Unique values", f"{int(df.nunique().sum()):,}"),
         ]
 
-    st.subheader("Dataset overview")
+    st.subheader("At a glance")
     metric_columns = st.columns(len(metric_values))
     for column, (label, value) in zip(metric_columns, metric_values):
         column.metric(label, value)
 
     if filename:
-        st.caption(f"Current dataset: {filename}")
+        st.caption(f"Active event log · {filename}")
 
     if valid_roles:
         clean_activities = df[activity_column].dropna().astype(str)
@@ -97,7 +114,8 @@ def render_dashboard(
             .reset_index(name="Events")
         )
 
-        chart_col, trend_col = st.columns(2)
+        st.subheader("Pathway signals")
+        chart_col, trend_col = st.columns([1, 1], gap="large")
         with chart_col:
             st.subheader("Most frequent activities")
             if activity_counts.empty:
@@ -123,7 +141,7 @@ def render_dashboard(
                     xaxis_title="Recorded events",
                     yaxis_title="",
                 )
-                st.plotly_chart(fig, use_container_width=True)
+                st.plotly_chart(fig, width="stretch")
 
         with trend_col:
             st.subheader("Events over time")
@@ -158,10 +176,10 @@ def render_dashboard(
                     xaxis_title="Date",
                     yaxis_title="Recorded events",
                 )
-                st.plotly_chart(fig, use_container_width=True)
+                st.plotly_chart(fig, width="stretch")
 
         st.subheader("Recent event records")
-        st.dataframe(df.head(10), use_container_width=True, hide_index=True)
+        st.dataframe(df.head(10), width="stretch", hide_index=True)
         return
 
     st.warning(
@@ -169,4 +187,4 @@ def render_dashboard(
         "Upload Dataset page to see pathway and timing analytics."
     )
     st.subheader("Recent dataset records")
-    st.dataframe(df.head(10), use_container_width=True, hide_index=True)
+    st.dataframe(df.head(10), width="stretch", hide_index=True)

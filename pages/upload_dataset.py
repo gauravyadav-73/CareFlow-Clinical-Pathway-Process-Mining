@@ -1,3 +1,5 @@
+import hashlib
+
 import plotly.express as px
 import streamlit as st
 
@@ -31,7 +33,13 @@ def render_upload_dataset() -> None:
     )
 
     if uploaded_file is not None:
-        current_upload = (uploaded_file.name, uploaded_file.size)
+        uploaded_file.seek(0)
+        content_hash = hashlib.sha256(uploaded_file.getvalue()).hexdigest()
+        current_upload = (
+            uploaded_file.name,
+            uploaded_file.size,
+            content_hash,
+        )
         if current_upload != st.session_state.get("careflow_upload_signature"):
             uploaded_file.seek(0)
             dataset, error = load_csv(uploaded_file)
@@ -67,7 +75,7 @@ def render_upload_dataset() -> None:
     summary_cols[1].metric("Total columns", f"{len(df.columns):,}")
     summary_cols[2].metric("Missing values", f"{int(df.isna().sum().sum()):,}")
     st.subheader("Dataset preview")
-    st.dataframe(df.head(10), use_container_width=True, hide_index=True)
+    st.dataframe(df.head(10), width="stretch", hide_index=True)
     with st.expander("View all dataset columns"):
         st.write(list(df.columns))
 
@@ -186,7 +194,7 @@ def render_upload_dataset() -> None:
         & df[activity_column].isin(selected_activities)
     ].copy()
     st.write(f"Records after filtering: **{len(filtered_df):,}**")
-    st.dataframe(filtered_df.head(100), use_container_width=True)
+    st.dataframe(filtered_df.head(100), width="stretch")
     st.download_button(
         "Download filtered event log",
         data=filtered_df.to_csv(index=False).encode("utf-8"),
@@ -215,4 +223,4 @@ def render_upload_dataset() -> None:
             labels={"Activity": "Clinical activity"},
         )
         fig.update_layout(template="plotly_white", xaxis_tickangle=-35)
-        st.plotly_chart(fig, use_container_width=True)
+        st.plotly_chart(fig, width="stretch")

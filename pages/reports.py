@@ -42,7 +42,7 @@ def render_reports(
     )
     summary = report["summary"]
     st.subheader("Dataset summary")
-    st.dataframe(summary, use_container_width=True, hide_index=True)
+    st.dataframe(summary, width="stretch", hide_index=True)
     st.download_button(
         "Download dataset summary",
         data=dataframe_to_csv_bytes(summary),
@@ -53,7 +53,7 @@ def render_reports(
 
     st.subheader("Column quality")
     column_quality = report["column_quality"]
-    st.dataframe(column_quality, use_container_width=True, hide_index=True)
+    st.dataframe(column_quality, width="stretch", hide_index=True)
     st.download_button(
         "Download column quality report",
         data=dataframe_to_csv_bytes(column_quality),
@@ -67,7 +67,7 @@ def render_reports(
         st.subheader("Selected event-log field quality")
         st.dataframe(
             event_quality.round({"Missing (%)": 2}),
-            use_container_width=True,
+            width="stretch",
             hide_index=True,
         )
         with st.expander("Event-log insights"):
@@ -80,4 +80,4 @@ def render_reports(
                 st.write(f"- {insight}")
 
     st.subheader("Dataset preview")
-    st.dataframe(df.head(20), use_container_width=True, hide_index=True)
+    st.dataframe(df.head(20), width="stretch", hide_index=True)

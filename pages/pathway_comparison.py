@@ -147,12 +147,12 @@ def render_pathway_comparison(
         yaxis=dict(showgrid=False),
         legend=dict(orientation="h", yanchor="bottom", y=1.02),
     )
-    st.plotly_chart(fig, use_container_width=True)
+    st.plotly_chart(fig, width="stretch")
 
     st.subheader("Position-by-position comparison")
     st.dataframe(
         compare_traces(first_pathway, second_pathway),
-        use_container_width=True,
+        width="stretch",
         hide_index=True,
     )
     st.caption(

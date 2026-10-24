@@ -125,8 +125,11 @@ def build_dataset_report(
                 ]
             )
 
+    summary = pd.DataFrame(summary_rows, columns=["Metric", "Value"])
+    summary["Value"] = summary["Value"].astype(str)
+
     return {
-        "summary": pd.DataFrame(summary_rows, columns=["Metric", "Value"]),
+        "summary": summary,
         "column_quality": column_quality,
         "event_quality": event_quality,
     }

@@ -134,7 +134,7 @@ def render_process_discovery(
         )
         fig = apply_chart_theme(fig, height=560)
         fig.update_layout(title="Activity transitions by sequence position")
-        st.plotly_chart(fig, use_container_width=True)
+        st.plotly_chart(fig, width="stretch")
         st.caption(
             "Link widths represent the number of cases with that transition. "
             "Only the 60 most frequent transitions are drawn."
@@ -152,7 +152,7 @@ def render_process_discovery(
     st.subheader("Most frequent observed pathways")
     st.dataframe(
         pd.DataFrame(pathway_rows).round({"Share (%)": 1}),
-        use_container_width=True,
+        width="stretch",
         hide_index=True,
     )
     st.caption(

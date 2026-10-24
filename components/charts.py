@@ -145,7 +145,7 @@ def activity_frequency_chart(
 
     st.plotly_chart(
         fig,
-        use_container_width=True,
+        width="stretch",
     )
 
 
@@ -218,7 +218,7 @@ def activity_distribution_chart(
 
     st.plotly_chart(
         fig,
-        use_container_width=True,
+        width="stretch",
     )
 
 
@@ -306,7 +306,7 @@ def events_over_time_chart(
 
     st.plotly_chart(
         fig,
-        use_container_width=True,
+        width="stretch",
     )
 
 
@@ -375,7 +375,7 @@ def patient_event_count_chart(
 
     st.plotly_chart(
         fig,
-        use_container_width=True,
+        width="stretch",
     )
 
 
@@ -491,7 +491,7 @@ def waiting_time_chart(
 
     st.plotly_chart(
         fig,
-        use_container_width=True,
+        width="stretch",
     )
 
     st.caption(
@@ -605,7 +605,7 @@ def patient_pathway_timeline(
 
     st.plotly_chart(
         fig,
-        use_container_width=True,
+        width="stretch",
     )
 
     st.dataframe(
@@ -616,7 +616,7 @@ def patient_pathway_timeline(
                 timestamp_column,
             ]
         ],
-        use_container_width=True,
+        width="stretch",
         hide_index=True,
     )
 
@@ -694,5 +694,5 @@ def activity_comparison_chart(
 
     st.plotly_chart(
         fig,
-        use_container_width=True,
+        width="stretch",
     )

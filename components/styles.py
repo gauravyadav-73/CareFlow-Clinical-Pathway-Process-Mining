@@ -277,6 +277,269 @@ def apply_styles():
             color: #B8CCD9;
         }
 
+        [data-testid="stSidebar"] [data-testid="stRadio"] label {
+            border-radius: 10px;
+            padding: 7px 10px;
+            transition: background 0.18s ease;
+        }
+
+        [data-testid="stSidebar"] [data-testid="stRadio"] label:hover {
+            background: rgba(255, 255, 255, 0.09);
+        }
+
+        [data-testid="stSidebar"] button {
+            border-color: rgba(255, 255, 255, 0.24);
+        }
+
+        [data-testid="stSidebar"] button:hover {
+            border-color: #5EEAD4;
+            color: #FFFFFF;
+        }
+
+        [data-testid="stSidebar"] a {
+            border-radius: 10px;
+        }
+
+        [data-testid="stSidebar"] a[aria-current="page"] {
+            background: rgba(45, 212, 191, 0.16);
+            border-left: 3px solid #5EEAD4;
+        }
+
+        /* -----------------------------------------
+           STREAMLIT PAGE POLISH
+        ----------------------------------------- */
+
+        .stApp {
+            background:
+                radial-gradient(
+                    circle at 95% 2%,
+                    rgba(153, 246, 228, 0.18),
+                    transparent 25rem
+                ),
+                var(--cf-background);
+        }
+
+        .block-container {
+            padding-top: 1.6rem;
+            padding-bottom: 2.5rem;
+        }
+
+        h1, h2, h3 {
+            color: var(--cf-navy);
+            letter-spacing: -0.035em;
+        }
+
+        h1 {
+            font-size: clamp(1.8rem, 3vw, 2.45rem);
+            font-weight: 800;
+        }
+
+        h2 {
+            font-size: 1.35rem;
+            font-weight: 750;
+        }
+
+        h3 {
+            font-size: 1.05rem;
+            font-weight: 700;
+        }
+
+        p, [data-testid="stMarkdownContainer"] {
+            line-height: 1.65;
+        }
+
+        [data-testid="stMetric"] {
+            min-height: 112px;
+            box-shadow: 0 5px 18px rgba(16, 42, 67, 0.045);
+            transition:
+                transform 0.18s ease,
+                box-shadow 0.18s ease,
+                border-color 0.18s ease;
+        }
+
+        [data-testid="stMetric"]:hover {
+            transform: translateY(-2px);
+            border-color: #99F6E4;
+            box-shadow: 0 9px 24px rgba(16, 42, 67, 0.08);
+        }
+
+        [data-testid="stMetricValue"] {
+            color: var(--cf-navy);
+            font-weight: 800;
+            letter-spacing: -0.04em;
+        }
+
+        .stButton > button,
+        .stDownloadButton > button {
+            min-height: 42px;
+            border-radius: 10px;
+            font-weight: 650;
+            transition: transform 0.16s ease, box-shadow 0.16s ease;
+        }
+
+        .stButton > button:hover,
+        .stDownloadButton > button:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 5px 14px rgba(15, 118, 110, 0.14);
+        }
+
+        [data-baseweb="select"] > div,
+        [data-baseweb="input"] > div,
+        [data-baseweb="textarea"] > div {
+            border-radius: 10px;
+        }
+
+        [data-testid="stFileUploader"] section {
+            background: linear-gradient(145deg, #FFFFFF, #F0FDFA);
+            border: 1px dashed #6FBDB3;
+            border-radius: 16px;
+            padding: 1rem;
+        }
+
+        [data-testid="stDataFrame"] {
+            box-shadow: 0 4px 16px rgba(16, 42, 67, 0.035);
+        }
+
+        [data-testid="stAlert"] {
+            border-radius: 12px;
+        }
+
+        [data-testid="stTabs"] button {
+            font-weight: 650;
+        }
+
+        .cf-brand {
+            display: flex;
+            align-items: center;
+            gap: 11px;
+            padding: 8px 4px 16px;
+        }
+
+        .cf-brand-mark {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 42px;
+            height: 42px;
+            flex: 0 0 42px;
+            border: 1px solid rgba(94, 234, 212, 0.45);
+            border-radius: 14px;
+            background: rgba(45, 212, 191, 0.14);
+            color: #5EEAD4;
+            font-size: 23px;
+        }
+
+        .cf-brand-name {
+            color: #FFFFFF;
+            font-size: 20px;
+            font-weight: 800;
+            letter-spacing: -0.6px;
+            line-height: 1.15;
+        }
+
+        .cf-brand-caption {
+            color: #A9C8D1;
+            font-size: 10px;
+            letter-spacing: 0.7px;
+            margin-top: 4px;
+            text-transform: uppercase;
+        }
+
+        .cf-page-kicker {
+            color: var(--cf-primary);
+            font-size: 10px;
+            font-weight: 800;
+            letter-spacing: 1.5px;
+            margin-bottom: 7px;
+            text-transform: uppercase;
+        }
+
+        .cf-dashboard-hero {
+            position: relative;
+            overflow: hidden;
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            border-radius: 22px;
+            background:
+                radial-gradient(
+                    circle at 85% 20%,
+                    rgba(45, 212, 191, 0.27),
+                    transparent 18rem
+                ),
+                linear-gradient(118deg, #102A43 0%, #123B55 62%, #0F766E 100%);
+            box-shadow: 0 16px 38px rgba(16, 42, 67, 0.16);
+            margin-bottom: 23px;
+            padding: clamp(23px, 3.6vw, 38px);
+        }
+
+        .cf-dashboard-hero:after {
+            position: absolute;
+            top: -90px;
+            right: -35px;
+            width: 260px;
+            height: 260px;
+            border: 1px solid rgba(204, 251, 241, 0.15);
+            border-radius: 50%;
+            box-shadow:
+                0 0 0 28px rgba(204, 251, 241, 0.035),
+                0 0 0 58px rgba(204, 251, 241, 0.025);
+            content: "";
+            pointer-events: none;
+        }
+
+        .cf-dashboard-kicker {
+            color: #99F6E4;
+            font-size: 10px;
+            font-weight: 800;
+            letter-spacing: 1.5px;
+            margin-bottom: 12px;
+            text-transform: uppercase;
+        }
+
+        .cf-dashboard-title {
+            color: #FFFFFF;
+            font-size: clamp(27px, 4vw, 40px);
+            font-weight: 800;
+            letter-spacing: -1.6px;
+            line-height: 1.1;
+            margin: 0 0 10px;
+        }
+
+        .cf-dashboard-copy {
+            color: #D5E9EB;
+            font-size: 14px;
+            line-height: 1.7;
+            margin: 0;
+            max-width: 680px;
+        }
+
+        .cf-live-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 7px;
+            border: 1px solid rgba(153, 246, 228, 0.3);
+            border-radius: 999px;
+            background: rgba(15, 118, 110, 0.25);
+            color: #D1FAE5;
+            font-size: 11px;
+            font-weight: 700;
+            margin-top: 20px;
+            padding: 7px 11px;
+        }
+
+        .cf-live-dot {
+            width: 7px;
+            height: 7px;
+            border-radius: 50%;
+            background: #5EEAD4;
+            box-shadow: 0 0 0 4px rgba(94, 234, 212, 0.13);
+        }
+
+        .cf-footer {
+            border-top: 1px solid var(--cf-border);
+            margin-top: 26px;
+            padding-top: 16px;
+        }
+
         /* -----------------------------------------
            BUTTONS
         ----------------------------------------- */
@@ -372,6 +635,10 @@ def apply_styles():
                 padding-right: 1rem;
             }
 
+            [data-testid="stSidebar"] {
+                border-right: 0;
+            }
+
             .cf-hero {
                 padding: 22px;
                 border-radius: 15px;
@@ -379,6 +646,11 @@ def apply_styles():
 
             .cf-metric-card {
                 padding: 15px;
+            }
+
+            [data-testid="stMetric"] {
+                min-height: 96px;
+                padding: 13px;
             }
         }
         </style>

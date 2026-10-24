@@ -12,6 +12,7 @@ from pages.process_discover import render_process_discovery
 from pages.reports import render_reports
 from pages.upload_dataset import render_upload_dataset
 from pages.what_if_simulator import render_what_if_simulator
+from components.styles import apply_styles
 from login import require_login
 from logout import show_logout_button
 
@@ -38,66 +39,10 @@ require_login()
 
 
 # --------------------------------------------------
-# CUSTOM STYLING
+# GLOBAL CAREFLOW THEME
 # --------------------------------------------------
 
-st.markdown(
-    """
-    <style>
-        .stApp {
-            background-color: #f5f8fc;
-        }
-
-        [data-testid="stSidebar"] {
-            background-color: #102a43;
-        }
-
-        [data-testid="stSidebar"] * {
-            color: #ffffff;
-        }
-
-        .main-title {
-            font-size: 36px;
-            font-weight: 750;
-            color: #102a43;
-            margin-bottom: 0;
-        }
-
-        .subtitle {
-            color: #627d98;
-            font-size: 16px;
-            margin-top: 5px;
-            margin-bottom: 25px;
-        }
-
-        .section-title {
-            color: #102a43;
-            font-size: 24px;
-            font-weight: 700;
-        }
-
-        .info-card {
-            background-color: #ffffff;
-            padding: 18px;
-            border-radius: 12px;
-            border: 1px solid #d9e2ec;
-            margin-bottom: 15px;
-        }
-
-        div[data-testid="stMetric"] {
-            background-color: #ffffff;
-            border: 1px solid #d9e2ec;
-            padding: 16px;
-            border-radius: 12px;
-        }
-
-        div.stButton > button {
-            border-radius: 8px;
-        }
-    </style>
-    """,
-    unsafe_allow_html=True,
-)
+apply_styles()
 
 
 # --------------------------------------------------
@@ -239,7 +184,7 @@ def upload_dataset():
             )
 
         st.subheader("Dataset Preview")
-        st.dataframe(df.head(10), use_container_width=True)
+        st.dataframe(df.head(10), width="stretch")
 
         with st.expander("View all dataset columns"):
             st.write(list(df.columns))
@@ -458,7 +403,7 @@ def show_upload_page():
 
         st.dataframe(
             filtered_df.head(100),
-            use_container_width=True,
+            width="stretch",
         )
 
         csv_data = filtered_df.to_csv(index=False).encode("utf-8")
@@ -498,7 +443,7 @@ def show_upload_page():
                 xaxis_tickangle=-35,
             )
 
-            st.plotly_chart(fig, use_container_width=True)
+            st.plotly_chart(fig, width="stretch")
 
         else:
             st.info("No records match the selected filters.")
@@ -548,6 +493,42 @@ def show_conformance_analysis():
     )
 
 
+def show_pathway_comparison():
+    render_pathway_comparison(
+        st.session_state.get("careflow_dataset"),
+        st.session_state.get("case_column_select"),
+        st.session_state.get("activity_column_select"),
+        st.session_state.get("timestamp_column_select"),
+    )
+
+
+def show_patient_journey():
+    render_patient_journey(
+        st.session_state.get("careflow_dataset"),
+        st.session_state.get("case_column_select"),
+        st.session_state.get("activity_column_select"),
+        st.session_state.get("timestamp_column_select"),
+    )
+
+
+def show_what_if_simulator():
+    render_what_if_simulator(
+        st.session_state.get("careflow_dataset"),
+        st.session_state.get("case_column_select"),
+        st.session_state.get("activity_column_select"),
+        st.session_state.get("timestamp_column_select"),
+    )
+
+
+def show_deviation_explorer():
+    render_deviation_explorer(
+        st.session_state.get("careflow_dataset"),
+        st.session_state.get("case_column_select"),
+        st.session_state.get("activity_column_select"),
+        st.session_state.get("timestamp_column_select"),
+    )
+
+
 # --------------------------------------------------
 # REPORTS PAGE
 # --------------------------------------------------
@@ -563,104 +544,80 @@ def show_reports():
 
 
 # --------------------------------------------------
-# SIDEBAR NAVIGATION
+# EXPLICIT PAGE NAVIGATION
 # --------------------------------------------------
+
+page = st.navigation(
+    {
+        "Clinical Pathway Analytics": [
+            st.Page(show_dashboard, title="Dashboard", icon="🏠", default=True),
+            st.Page(
+                render_upload_dataset,
+                title="Upload Dataset",
+                icon="📂",
+            ),
+            st.Page(
+                show_process_discovery,
+                title="Process Discovery",
+                icon="🔍",
+            ),
+            st.Page(
+                show_pathway_comparison,
+                title="Pathway Comparison",
+                icon="🔀",
+            ),
+            st.Page(
+                show_patient_journey,
+                title="Patient Journey",
+                icon="🧭",
+            ),
+            st.Page(
+                show_what_if_simulator,
+                title="What-if Simulator",
+                icon="🧪",
+            ),
+            st.Page(
+                show_bottleneck_analysis,
+                title="Bottleneck Analysis",
+                icon="⏱️",
+            ),
+            st.Page(
+                show_conformance_analysis,
+                title="Conformance Analysis",
+                icon="✅",
+            ),
+            st.Page(
+                show_deviation_explorer,
+                title="Deviation Explorer",
+                icon="⚠️",
+            ),
+            st.Page(show_reports, title="Reports", icon="📊"),
+        ],
+    }
+)
 
 with st.sidebar:
 
     st.markdown(
         """
-        <div style="text-align:center; padding:12px 0 20px;">
-            <div style="font-size:42px;">🏥</div>
-            <h2 style="margin:0;">CareFlow</h2>
-            <p style="font-size:12px; opacity:0.8;">
-                Clinical Pathway Analytics
-            </p>
+        <div class="cf-brand">
+            <div class="cf-brand-mark">✚</div>
+            <div>
+                <div class="cf-brand-name">CareFlow</div>
+                <div class="cf-brand-caption">Pathway intelligence</div>
+            </div>
         </div>
         """,
         unsafe_allow_html=True,
     )
 
     st.divider()
-
-    page = st.radio(
-        "Navigation",
-        [
-            "Dashboard",
-            "Upload Dataset",
-            "Process Discovery",
-            "Pathway Comparison",
-            "Patient Journey",
-            "What-if Simulator",
-            "Bottleneck Analysis",
-            "Conformance Analysis",
-            "Deviation Explorer",
-            "Reports",
-        ],
-        key="careflow_navigation",
-    )
-
-    st.divider()
-
     st.caption("Clinical Pathway Process Mining")
 
     # Logout controls from the separate logout.py file.
     show_logout_button()
 
-
-# --------------------------------------------------
-# PAGE ROUTING
-# --------------------------------------------------
-
-if page == "Dashboard":
-    show_dashboard()
-
-elif page == "Upload Dataset":
-    render_upload_dataset()
-
-elif page == "Process Discovery":
-    show_process_discovery()
-
-elif page == "Pathway Comparison":
-    render_pathway_comparison(
-        st.session_state.get("careflow_dataset"),
-        st.session_state.get("case_column_select"),
-        st.session_state.get("activity_column_select"),
-        st.session_state.get("timestamp_column_select"),
-    )
-
-elif page == "Patient Journey":
-    render_patient_journey(
-        st.session_state.get("careflow_dataset"),
-        st.session_state.get("case_column_select"),
-        st.session_state.get("activity_column_select"),
-        st.session_state.get("timestamp_column_select"),
-    )
-
-elif page == "What-if Simulator":
-    render_what_if_simulator(
-        st.session_state.get("careflow_dataset"),
-        st.session_state.get("case_column_select"),
-        st.session_state.get("activity_column_select"),
-        st.session_state.get("timestamp_column_select"),
-    )
-
-elif page == "Bottleneck Analysis":
-    show_bottleneck_analysis()
-
-elif page == "Conformance Analysis":
-    show_conformance_analysis()
-
-elif page == "Deviation Explorer":
-    render_deviation_explorer(
-        st.session_state.get("careflow_dataset"),
-        st.session_state.get("case_column_select"),
-        st.session_state.get("activity_column_select"),
-        st.session_state.get("timestamp_column_select"),
-    )
-
-elif page == "Reports":
-    show_reports()
+page.run()
 
 
 # --------------------------------------------------
@@ -669,7 +626,7 @@ elif page == "Reports":
 
 st.divider()
 
-st.caption(
-    "CareFlow | Clinical Pathway Process Mining | "
-    "Dashboard and integration prototype"
+st.markdown(
+    '<div class="cf-footer">CareFlow · Clinical pathway intelligence</div>',
+    unsafe_allow_html=True,
 )

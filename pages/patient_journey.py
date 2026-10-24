@@ -111,7 +111,7 @@ def render_patient_journey(
         ),
         legend_title_text="Activity",
     )
-    st.plotly_chart(fig, use_container_width=True)
+    st.plotly_chart(fig, width="stretch")
 
     st.subheader("Event details")
     displayed_journey = journey[
@@ -129,7 +129,7 @@ def render_patient_journey(
     )
     st.dataframe(
         displayed_journey.round({"Hours since previous event": 2}),
-        use_container_width=True,
+        width="stretch",
         hide_index=True,
     )
     st.download_button(

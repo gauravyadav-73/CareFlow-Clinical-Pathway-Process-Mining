@@ -122,10 +122,10 @@ def render_deviation_explorer(
     )
     fig = apply_chart_theme(fig, height=max(340, len(chart_df) * 36))
     fig.update_layout(showlegend=False, xaxis_title="Cases", yaxis_title="")
-    st.plotly_chart(fig, use_container_width=True)
+    st.plotly_chart(fig, width="stretch")
     st.dataframe(
         variant_df.round({"Share (%)": 1}),
-        use_container_width=True,
+        width="stretch",
         hide_index=True,
     )
 
@@ -171,7 +171,7 @@ def render_deviation_explorer(
     st.caption(f"Reference: {' → '.join(reference)}")
     st.dataframe(
         pd.DataFrame(deviation_cases),
-        use_container_width=True,
+        width="stretch",
         hide_index=True,
     )
     st.download_button(

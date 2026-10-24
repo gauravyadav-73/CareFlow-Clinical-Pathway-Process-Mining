@@ -119,7 +119,7 @@ def render_what_if_simulator(
     )
     fig = apply_chart_theme(fig, height=350)
     fig.update_layout(xaxis_title="", yaxis_title="Elapsed time (hours)")
-    st.plotly_chart(fig, use_container_width=True)
+    st.plotly_chart(fig, width="stretch")
 
     result = summary.copy()
     result["Reduction (%)"] = 0
@@ -139,7 +139,7 @@ def render_what_if_simulator(
                 "Estimated total savings (hours)": 2,
             }
         ),
-        use_container_width=True,
+        width="stretch",
         hide_index=True,
     )
     st.download_button(

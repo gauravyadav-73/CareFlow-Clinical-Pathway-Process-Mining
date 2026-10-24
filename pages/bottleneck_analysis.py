@@ -134,7 +134,7 @@ def render_bottleneck_analysis(
         xaxis_title=f"{selected_metric.title()} (hours)",
         yaxis_title="",
     )
-    st.plotly_chart(fig, use_container_width=True)
+    st.plotly_chart(fig, width="stretch")
     st.caption(
         f"Highest-ranked activity: {leading_activity} "
         f"({leading_gap:.1f} hours by {selected_metric.lower()})."
@@ -150,7 +150,7 @@ def render_bottleneck_analysis(
                 "Total gap (hours)": 2,
             }
         ),
-        use_container_width=True,
+        width="stretch",
         hide_index=True,
     )
     with st.expander("Observed data insights"):
