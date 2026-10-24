@@ -65,3 +65,4 @@ def prepare_log(df: pd.DataFrame) -> pd.DataFrame:
         rename = {}
         for std, options in _ALIASES.items():
                 for opt in options:
+                        if opt in df.columns:
