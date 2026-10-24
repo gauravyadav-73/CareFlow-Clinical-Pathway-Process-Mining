@@ -63,3 +63,4 @@ def prepare_log(df: pd.DataFrame) -> pd.DataFrame:
         """Normalise column names, parse timestamps, sort, and add PM4Py columns."""
         df = df.copy()
         rename = {}
+        for std, options in _ALIASES.items():
