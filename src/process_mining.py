@@ -66,3 +66,5 @@ def prepare_log(df: pd.DataFrame) -> pd.DataFrame:
         for std, options in _ALIASES.items():
                 for opt in options:
                         if opt in df.columns:
+                                rename[opt] = std
+                                break
