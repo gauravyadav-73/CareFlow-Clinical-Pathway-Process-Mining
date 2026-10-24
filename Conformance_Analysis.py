@@ -139,3 +139,4 @@ def detect_deviations(df: pd.DataFrame) -> pd.DataFrame:
     for i, a in enumerate(MANDATORY_STEPS):
         for b in MANDATORY_STEPS[i + 1:]:
             if a in first_pos and b in first_pos and first_pos[a] > first_pos[b]:
+                out.append((case_id, "Out-of-order step", f"'{b}' happened before '{a}'")
