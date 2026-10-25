@@ -68,3 +68,4 @@ def prepare_log(df: pd.DataFrame) -> pd.DataFrame:
                         if opt in df.columns:
                                 rename[opt] = std
                                 break
+        df = df.rename(columns=rename)
