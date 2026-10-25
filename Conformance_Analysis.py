@@ -143,3 +143,5 @@ def detect_deviations(df: pd.DataFrame) -> pd.DataFrame:
                            
     # Repeated activities (rework)
     for a in sorted({x for x in acts if acts.count(x) > 1}):
+                out.append((case_id, "Repeated step", f"'{a}' occurred {acts.count(a)} times"))
+                
