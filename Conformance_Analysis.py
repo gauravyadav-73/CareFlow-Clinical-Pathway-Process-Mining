@@ -142,3 +142,4 @@ def detect_deviations(df: pd.DataFrame) -> pd.DataFrame:
                 out.append((case_id, "Out-of-order step", f"'{b}' happened before '{a}'")
                            
     # Repeated activities (rework)
+    for a in sorted({x for x in acts if acts.count(x) > 1}):
