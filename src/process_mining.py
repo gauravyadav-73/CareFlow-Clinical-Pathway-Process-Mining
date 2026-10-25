@@ -70,3 +70,4 @@ def prepare_log(df: pd.DataFrame) -> pd.DataFrame:
                                 break
         df = df.rename(columns=rename)
         missing = [c for c in (CASE_COL, ACT_COL, TS_COL) if c not in df.columns]
+        if missing:
