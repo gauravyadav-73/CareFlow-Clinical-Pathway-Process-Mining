@@ -151,4 +151,8 @@ def detect_deviations(df: pd.DataFrame) -> pd.DataFrame:
         out.append((case_id, "Unexpected step", f"'{a}' is not part of the standard pathway"))
 
 return pd.DataFrame(out, columns=["case_id", "deviation_type", "description"])
+
+# --------------------------------------------------------------------------
+# 5. DELAY DRIVERS
+# --------------------------------------------------------------------------
                 
