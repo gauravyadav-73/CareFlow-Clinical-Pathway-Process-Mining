@@ -73,3 +73,4 @@ def prepare_log(df: pd.DataFrame) -> pd.DataFrame:
         if missing:
                 raise ValueError(
                         f"Event log is missing required columns: {missing}. "
+                        f"Found: {list(df.columns)}"
