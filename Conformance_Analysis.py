@@ -149,4 +149,6 @@ def detect_deviations(df: pd.DataFrame) -> pd.DataFrame:
     allowed = set(MANDATORY_STEPS) | {"Lab Test", "X-Ray"}
     for a in sorted(set(acts) - allowed):
         out.append((case_id, "Unexpected step", f"'{a}' is not part of the standard pathway"))
+
+return pd.DataFrame(out, columns=["case_id", "deviation_type", "description"])
                 
