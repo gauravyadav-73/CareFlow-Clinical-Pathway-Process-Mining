@@ -75,3 +75,4 @@ def prepare_log(df: pd.DataFrame) -> pd.DataFrame:
                         f"Event log is missing required columns: {missing}. "
                         f"Found: {list(df.columns)}"
                 )
+        df[CASE_COL] = df[CASE_COL].astype(str)
