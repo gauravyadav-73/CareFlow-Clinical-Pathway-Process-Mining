@@ -152,6 +152,7 @@ def detect_deviations(df: pd.DataFrame) -> pd.DataFrame:
 
 return pd.DataFrame(out, columns=["case_id", "deviation_type", "description"])
 
+def transition_times(df: pd.DataFrame) -> pd.DataFrame:
 # --------------------------------------------------------------------------
 # 5. DELAY DRIVERS
 # --------------------------------------------------------------------------
