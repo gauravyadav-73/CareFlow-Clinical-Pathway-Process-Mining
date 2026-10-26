@@ -76,3 +76,4 @@ def prepare_log(df: pd.DataFrame) -> pd.DataFrame:
                         f"Found: {list(df.columns)}"
                 )
         df[CASE_COL] = df[CASE_COL].astype(str)
+        df[ACT_COL] = df[ACT_COL].astype(str).str.strip()
