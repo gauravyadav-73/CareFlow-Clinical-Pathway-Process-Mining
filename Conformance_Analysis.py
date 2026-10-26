@@ -147,4 +147,5 @@ def detect_deviations(df: pd.DataFrame) -> pd.DataFrame:
 
     # Unexpected activities not in the standard pathway
     allowed = set(MANDATORY_STEPS) | {"Lab Test", "X-Ray"}
+    for a in sorted(set(acts) - allowed):
                 
