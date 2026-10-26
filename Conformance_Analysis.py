@@ -146,4 +146,5 @@ def detect_deviations(df: pd.DataFrame) -> pd.DataFrame:
                 out.append((case_id, "Repeated step", f"'{a}' occurred {acts.count(a)} times"))
 
     # Unexpected activities not in the standard pathway
+    allowed = set(MANDATORY_STEPS) | {"Lab Test", "X-Ray"}
                 
