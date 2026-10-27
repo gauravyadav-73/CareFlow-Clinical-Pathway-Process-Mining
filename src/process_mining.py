@@ -83,4 +83,5 @@ def prepare_log(df: pd.DataFrame) -> pd.DataFrame:
 
         # PM4Py's expected column names
         df["case:concept:name"] = df[CASE_COL]
+        df["concept:name"] = df[ACT_COL]
         
