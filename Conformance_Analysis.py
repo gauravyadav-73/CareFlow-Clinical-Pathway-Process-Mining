@@ -161,3 +161,4 @@ def transition_times(df: pd.DataFrame) -> pd.DataFrame:
     d = df[[CASE, ACT, TS]].copy()
     d["next_activity"] = d.groupby(CASE)[ACT].shift(-1)
     d["next_ts"] = d.groupby(CASE)[TS].shift(-1)
+    d = d.dropna(subset=["next_activity"])
