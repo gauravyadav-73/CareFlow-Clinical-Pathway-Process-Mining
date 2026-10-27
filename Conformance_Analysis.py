@@ -157,3 +157,4 @@ return pd.DataFrame(out, columns=["case_id", "deviation_type", "description"])
 # --------------------------------------------------------------------------
                 
 def transition_times(df: pd.DataFrame) -> pd.DataFrame:
+    """Waiting time (hours) between each pair of consecutive events per case."""
