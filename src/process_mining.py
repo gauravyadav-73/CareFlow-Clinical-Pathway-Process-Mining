@@ -78,4 +78,5 @@ def prepare_log(df: pd.DataFrame) -> pd.DataFrame:
         df[CASE_COL] = df[CASE_COL].astype(str)
         df[ACT_COL] = df[ACT_COL].astype(str).str.strip()
         df[TS_COL] = pd.to_datetime(df[TS_COL], errors="coerce", utc=True).dt.tz_localize(None)
+        df = df.dropna(subset=[CASE_COL, ACT_COL, TS_COL])
         
