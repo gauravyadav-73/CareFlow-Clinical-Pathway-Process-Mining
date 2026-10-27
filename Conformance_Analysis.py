@@ -160,3 +160,4 @@ def transition_times(df: pd.DataFrame) -> pd.DataFrame:
     """Waiting time (hours) between each pair of consecutive events per case."""
     d = df[[CASE, ACT, TS]].copy()
     d["next_activity"] = d.groupby(CASE)[ACT].shift(-1)
+    d["next_ts"] = d.groupby(CASE)[TS].shift(-1)
