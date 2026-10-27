@@ -82,4 +82,5 @@ def prepare_log(df: pd.DataFrame) -> pd.DataFrame:
         df = df.sort_values([CASE_COL, TS_COL], kind="mergesort").reset_index(drop=True)
 
         # PM4Py's expected column names
+        df["case:concept:name"] = df[CASE_COL]
         
