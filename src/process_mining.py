@@ -80,4 +80,6 @@ def prepare_log(df: pd.DataFrame) -> pd.DataFrame:
         df[TS_COL] = pd.to_datetime(df[TS_COL], errors="coerce", utc=True).dt.tz_localize(None)
         df = df.dropna(subset=[CASE_COL, ACT_COL, TS_COL])
         df = df.sort_values([CASE_COL, TS_COL], kind="mergesort").reset_index(drop=True)
+
+        # PM4Py's expected column names
         
