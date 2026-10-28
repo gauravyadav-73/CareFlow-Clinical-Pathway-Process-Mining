@@ -93,3 +93,4 @@ def log_summary(df: pd.DataFrame) -> dict:
                 "num_cases": int(df[CASE_COL].nunique()),
                 "num_events": int(len(df)),
                 "num_activities": int(df[ACT_COL].nunique()),
+                "num_variants": int(len(pm4py.get_variants(df))),
