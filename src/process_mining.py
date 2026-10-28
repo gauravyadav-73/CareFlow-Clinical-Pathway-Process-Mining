@@ -88,3 +88,4 @@ def prepare_log(df: pd.DataFrame) -> pd.DataFrame:
         return df
 
 def log_summary(df: pd.DataFrame) -> dict:
+        """Headline statistics for the dashboard's overview cards."""
