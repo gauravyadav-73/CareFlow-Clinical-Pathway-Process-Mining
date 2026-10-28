@@ -86,3 +86,5 @@ def prepare_log(df: pd.DataFrame) -> pd.DataFrame:
         df["concept:name"] = df[ACT_COL]
         df["time:timestamp"] = df[TS_COL]
         return df
+
+def log_summary(df: pd.DataFrame) -> dict:
