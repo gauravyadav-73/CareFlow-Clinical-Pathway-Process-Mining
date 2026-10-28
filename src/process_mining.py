@@ -96,3 +96,4 @@ def log_summary(df: pd.DataFrame) -> dict:
                 "num_variants": int(len(pm4py.get_variants(df))),
                 "start_date": df[TS_COL].min(),
                 "end_date": df[TS_COL].max(),
+                "activities": sorted(df[ACT_COL].unique().tolist()),
