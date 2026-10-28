@@ -92,3 +92,4 @@ def log_summary(df: pd.DataFrame) -> dict:
         return {
                 "num_cases": int(df[CASE_COL].nunique()),
                 "num_events": int(len(df)),
+                "num_activities": int(df[ACT_COL].nunique()),
