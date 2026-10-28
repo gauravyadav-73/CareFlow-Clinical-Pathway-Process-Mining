@@ -170,3 +170,4 @@ def transition_times(df: pd.DataFrame) -> pd.DataFrame:
 
 def delay_analysis(df: pd.DataFrame, case_table: pd.DataFrame) -> pd.DataFrame:
     """Rank transitions by average wait, compare to clinical targets and to deviating cases."""
+    t = transition_times(df).merge(case_table[["case_id", "is_conforming"]], on="case_id")
