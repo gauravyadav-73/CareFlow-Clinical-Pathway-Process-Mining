@@ -163,3 +163,4 @@ def transition_times(df: pd.DataFrame) -> pd.DataFrame:
     d["next_ts"] = d.groupby(CASE)[TS].shift(-1)
     d = d.dropna(subset=["next_activity"])
     d["wait_hours"] = (d["next_ts"] - d[TS]).dt.total_seconds() / 3600
+    return d.rename(columns={ACT: "from_activity", "next_activity": "to_activity", CASE: "case_id"})[
