@@ -169,3 +169,4 @@ def transition_times(df: pd.DataFrame) -> pd.DataFrame:
 
 
 def delay_analysis(df: pd.DataFrame, case_table: pd.DataFrame) -> pd.DataFrame:
+    """Rank transitions by average wait, compare to clinical targets and to deviating cases."""
