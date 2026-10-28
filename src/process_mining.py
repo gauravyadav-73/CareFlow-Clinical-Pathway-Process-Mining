@@ -91,3 +91,4 @@ def log_summary(df: pd.DataFrame) -> dict:
         """Headline statistics for the dashboard's overview cards."""
         return {
                 "num_cases": int(df[CASE_COL].nunique()),
+                "num_events": int(len(df)),
