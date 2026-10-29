@@ -174,3 +174,4 @@ def delay_analysis(df: pd.DataFrame, case_table: pd.DataFrame) -> pd.DataFrame:
     grp = t.groupby(["from_activity", "to_activity"])
     res = grp["wait_hours"].agg(avg_wait_h="mean", median_wait_h="median", max_wait_h="max", cases="count")
     res["avg_wait_conforming_h"] = t[t.is_conforming].groupby(["from_activity", "to_activity"])["wait_hours"].mean()
+    res["avg_wait_deviating_h"] = t[~t.is_conforming].groupby(["from_activity", "to_activity"])["wait_hours"].mean()
