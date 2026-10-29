@@ -19,18 +19,19 @@ def apply_styles():
         );
 
         :root {
-            --cf-primary: #0F766E;
-            --cf-primary-dark: #115E59;
-            --cf-navy: #102A43;
-            --cf-background: #F4F7FB;
-            --cf-surface: #FFFFFF;
-            --cf-text: #243B53;
-            --cf-muted: #627D98;
-            --cf-border: #E2E8F0;
-            --cf-mint: #CCFBF1;
-            --cf-success: #15803D;
-            --cf-warning: #B45309;
-            --cf-danger: #B91C1C;
+            color-scheme: dark;
+            --cf-primary: #2DD4BF;
+            --cf-primary-dark: #14B8A6;
+            --cf-navy: #F1F5F9;
+            --cf-background: #111827;
+            --cf-surface: #1F2937;
+            --cf-text: #E5EDF5;
+            --cf-muted: #A2B2C4;
+            --cf-border: #37475A;
+            --cf-mint: #134E4A;
+            --cf-success: #4ADE80;
+            --cf-warning: #FBBF24;
+            --cf-danger: #F87171;
         }
 
         html,
@@ -857,6 +858,103 @@ def apply_styles():
                 min-height: 96px;
                 padding: 13px;
             }
+        }
+
+        /* -----------------------------------------
+           DARK SURFACES
+        ----------------------------------------- */
+
+        .stApp {
+            color: var(--cf-text);
+            background:
+                radial-gradient(
+                    circle at 95% 2%,
+                    rgba(45, 212, 191, 0.08),
+                    transparent 25rem
+                ),
+                var(--cf-background);
+        }
+
+        h1, h2, h3, h4, h5, h6,
+        .cf-page-title,
+        .cf-section-title,
+        .cf-metric-value,
+        .cf-card-title,
+        .cf-overview-title,
+        .cf-overview-value {
+            color: var(--cf-navy);
+        }
+
+        .cf-metric-card,
+        .cf-card,
+        .cf-overview-status,
+        .cf-overview-metric,
+        [data-testid="stMetric"],
+        [data-testid="stExpander"],
+        [data-testid="stFileUploader"],
+        [data-testid="stDataFrame"] {
+            background-color: var(--cf-surface);
+            border-color: var(--cf-border);
+            color: var(--cf-text);
+        }
+
+        [data-testid="stFileUploader"] section {
+            background: #243244;
+            border-color: #52716F;
+        }
+
+        [data-baseweb="select"] > div,
+        [data-baseweb="input"] > div,
+        [data-baseweb="textarea"] > div,
+        [data-testid="stTextInput"] input,
+        [data-testid="stNumberInput"] input,
+        [data-testid="stDateInput"] input,
+        [data-testid="stSelectbox"] [role="combobox"],
+        [data-testid="stMultiSelect"] [role="combobox"] {
+            background-color: #182332;
+            color: var(--cf-text);
+            border-color: var(--cf-border);
+        }
+
+        [data-testid="stMarkdownContainer"],
+        [data-testid="stCaptionContainer"],
+        [data-testid="stWidgetLabel"],
+        [data-testid="stMetricLabel"],
+        [data-testid="stMetricValue"],
+        [data-testid="stMetricDelta"] {
+            color: var(--cf-text);
+        }
+
+        .stButton > button,
+        .stDownloadButton > button {
+            color: var(--cf-text);
+            border-color: var(--cf-border);
+            background: #263548;
+        }
+
+        .stButton > button[kind="primary"] {
+            background: var(--cf-primary-dark);
+            border-color: var(--cf-primary-dark);
+            color: #062925;
+        }
+
+        [data-testid="stTabs"] button {
+            color: var(--cf-muted);
+        }
+
+        .cf-overview-status-ready {
+            color: #6EE7B7;
+            border-color: #226354;
+        }
+
+        .cf-process-map-chip {
+            background: #1E3A5F;
+            border-color: #31577B;
+            color: #BFDBFE;
+        }
+
+        .cf-footer {
+            color: var(--cf-muted);
         }
         </style>
         """,
