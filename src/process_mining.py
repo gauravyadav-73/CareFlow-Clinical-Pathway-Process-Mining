@@ -107,3 +107,5 @@ def discover_dfg(df: pd.DataFrame):
         """Frequency Directly-Follows Graph.
 
         Returns (dfg, start_activities, end_activities) where dfg is
+        {(from_activity, to_activity): count}.
+    """
