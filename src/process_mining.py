@@ -105,3 +105,5 @@ def log_summary(df: pd.DataFrame) -> dict:
 
 def discover_dfg(df: pd.DataFrame):
         """Frequency Directly-Follows Graph.
+
+        Returns (dfg, start_activities, end_activities) where dfg is
