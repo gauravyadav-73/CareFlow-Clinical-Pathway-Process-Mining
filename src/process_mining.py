@@ -115,3 +115,4 @@ def discover_dfg(df: pd.DataFrame):
 
 def dfg_to_dataframe(dfg: dict) -> pd.DataFrame:
         """DFG dict -> tidy DataFrame (handy for st.dataframe / downloads)."""
+        rows = [{"from": a, "to": b, "count": c} for (a, b), c in dfg.items()]
