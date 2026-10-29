@@ -117,3 +117,4 @@ def dfg_to_dataframe(dfg: dict) -> pd.DataFrame:
         """DFG dict -> tidy DataFrame (handy for st.dataframe / downloads)."""
         rows = [{"from": a, "to": b, "count": c} for (a, b), c in dfg.items()]
         out = pd.DataFrame(rows, columns=["from", "to", "count"])
+        return out.sort_values("count", ascending=False).reset_index(drop=True)
