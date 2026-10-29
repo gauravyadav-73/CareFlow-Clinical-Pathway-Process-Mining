@@ -111,3 +111,6 @@ def discover_dfg(df: pd.DataFrame):
     """
         dfg, start, end = pm4py.discover_dfg(df)
         return dict(dfg), dict(start), dict(end)
+
+
+def dfg_to_dataframe(dfg: dict) -> pd.DataFrame:
