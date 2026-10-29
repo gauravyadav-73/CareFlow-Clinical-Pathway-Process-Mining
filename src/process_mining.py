@@ -98,3 +98,7 @@ def log_summary(df: pd.DataFrame) -> dict:
                 "end_date": df[TS_COL].max(),
                 "activities": sorted(df[ACT_COL].unique().tolist()),
         }
+
+# --------------------------------------------------------------------------- #
+# Process discovery
+# --------------------------------------------------------------------------- #
