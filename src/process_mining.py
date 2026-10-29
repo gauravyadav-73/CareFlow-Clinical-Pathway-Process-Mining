@@ -110,3 +110,4 @@ def discover_dfg(df: pd.DataFrame):
         {(from_activity, to_activity): count}.
     """
         dfg, start, end = pm4py.discover_dfg(df)
+        return dict(dfg), dict(start), dict(end)
