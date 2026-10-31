@@ -178,3 +178,4 @@ def delay_analysis(df: pd.DataFrame, case_table: pd.DataFrame) -> pd.DataFrame:
     res = res.reset_index()
     res["target_h"] = [WAIT_TARGET_HOURS.get((a, b)) for a, b in zip(res.from_activity, res.to_activity)]
     res["over_target"] = res["avg_wait_h"] > res["target_h"]
+    # share of cases breaching the target on this step
