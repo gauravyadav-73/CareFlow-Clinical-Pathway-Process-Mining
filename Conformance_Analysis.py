@@ -176,3 +176,4 @@ def delay_analysis(df: pd.DataFrame, case_table: pd.DataFrame) -> pd.DataFrame:
     res["avg_wait_conforming_h"] = t[t.is_conforming].groupby(["from_activity", "to_activity"])["wait_hours"].mean()
     res["avg_wait_deviating_h"] = t[~t.is_conforming].groupby(["from_activity", "to_activity"])["wait_hours"].mean()
     res = res.reset_index()
+    res["target_h"] = [WAIT_TARGET_HOURS.get((a, b)) for a, b in zip(res.from_activity, res.to_activity)]
