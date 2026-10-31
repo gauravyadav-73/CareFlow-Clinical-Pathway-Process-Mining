@@ -1,6 +1,7 @@
 import hashlib
 import hmac
 import logging
+import re
 import secrets
 import sqlite3
 from contextlib import closing
@@ -23,7 +24,8 @@ def _initialize_user_store():
             connection.execute(
                 """
                 CREATE TABLE IF NOT EXISTS users (
-                    username TEXT PRIMARY KEY,
+                    email TEXT PRIMARY KEY,
+                    name TEXT NOT NULL,
                     salt TEXT NOT NULL,
                     password_hash TEXT NOT NULL,
                     iterations INTEGER NOT NULL
@@ -31,8 +33,23 @@ def _initialize_user_store():
                 """
             )
 
+            columns = {
+                row[1]
+                for row in connection.execute(
+                    "PRAGMA table_info(users)"
+                ).fetchall()
+            }
+            if "username" in columns and "email" not in columns:
+                connection.execute(
+                    "ALTER TABLE users RENAME COLUMN username TO email"
+                )
+            if "name" not in columns:
+                connection.execute(
+                    "ALTER TABLE users ADD COLUMN name TEXT NOT NULL DEFAULT ''"
+                )
 
-def _register_user(username, password):
+
+def _register_user(email, name, password):
     """Save a new account using a salted, iterated password hash."""
 
     salt = secrets.token_bytes(16)
@@ -48,11 +65,12 @@ def _register_user(username, password):
         with connection:
             connection.execute(
                 """
-                INSERT INTO users (username, salt, password_hash, iterations)
-                VALUES (?, ?, ?, ?)
+                INSERT INTO users (email, name, salt, password_hash, iterations)
+                VALUES (?, ?, ?, ?, ?)
                 """,
                 (
-                    username.casefold(),
+                    email.casefold(),
+                    name,
                     salt.hex(),
                     password_hash.hex(),
                     PASSWORD_HASH_ITERATIONS,
@@ -60,47 +78,53 @@ def _register_user(username, password):
             )
 
 
-def _authenticate_user(username, password):
+def _authenticate_user(email, password):
     """Check configured credentials and locally registered accounts."""
 
     try:
         configured_auth = st.secrets["auth"]
-        configured_username = configured_auth["username"]
+        configured_email = configured_auth.get(
+            "email",
+            configured_auth.get("username"),
+        )
         configured_password = configured_auth["password"]
     except (KeyError, FileNotFoundError):
         pass
     else:
         if (
-            hmac.compare_digest(
-                username.casefold(),
-                str(configured_username).strip().casefold(),
+            configured_email is not None
+            and hmac.compare_digest(
+                email.casefold(),
+                str(configured_email).strip().casefold(),
             )
             and hmac.compare_digest(password, str(configured_password))
         ):
-            return True
+            return str(configured_auth.get("name") or configured_email).strip()
 
     _initialize_user_store()
     with closing(sqlite3.connect(USER_DATABASE)) as connection:
         user = connection.execute(
             """
-            SELECT salt, password_hash, iterations
+            SELECT name, salt, password_hash, iterations
             FROM users
-            WHERE username = ?
+            WHERE email = ?
             """,
-            (username.casefold(),),
+            (email.casefold(),),
         ).fetchone()
 
     if user is None:
-        return False
+        return None
 
-    salt, stored_hash, iterations = user
+    name, salt, stored_hash, iterations = user
     candidate_hash = hashlib.pbkdf2_hmac(
         "sha256",
         password.encode("utf-8"),
         bytes.fromhex(salt),
         iterations,
     )
-    return hmac.compare_digest(candidate_hash.hex(), stored_hash)
+    if hmac.compare_digest(candidate_hash.hex(), stored_hash):
+        return name or email
+    return None
 
 
 def apply_login_styles():
@@ -111,8 +135,9 @@ def apply_login_styles():
         <style>
         .stApp {
             background:
-                radial-gradient(circle at 18% 18%, #DDF7F2 0, transparent 28rem),
-                #F4F7FB;
+                radial-gradient(circle at 18% 18%, rgba(45, 212, 191, .12) 0, transparent 28rem),
+                #111827;
+            color: #E5EDF5;
         }
 
         [data-testid="stSidebar"],
@@ -143,13 +168,13 @@ def apply_login_styles():
         .login-brand {
             font-size: 38px;
             font-weight: 800;
-            color: #102A43;
+            color: #F1F5F9;
             letter-spacing: -1.5px;
             margin-bottom: 0;
         }
 
         .login-subtitle {
-            color: #627D98;
+            color: #A2B2C4;
             font-size: 14px;
         }
 
@@ -234,15 +259,15 @@ def apply_login_styles():
         }
 
         .st-key-login-card {
-            background: rgba(255, 255, 255, .78);
-            border: 1px solid rgba(255, 255, 255, .92);
+            background: #1F2937;
+            border: 1px solid #37475A;
             border-radius: 22px;
-            box-shadow: 0 18px 46px rgba(16, 42, 67, .09);
+            box-shadow: 0 18px 46px rgba(0, 0, 0, .22);
             padding: 26px clamp(24px, 4vw, 38px) 18px;
         }
 
         .login-kicker {
-            color: #0F766E;
+            color: #5EEAD4;
             font-size: 10px;
             font-weight: 800;
             letter-spacing: 1.6px;
@@ -253,6 +278,13 @@ def apply_login_styles():
         div[data-baseweb="input"] > div {
             border-radius: 10px;
             min-height: 44px;
+            background: #182332;
+            border-color: #37475A;
+        }
+
+        [data-testid="stTextInput"] input {
+            color: #E5EDF5;
+            background: #182332;
         }
 
         .stFormSubmitButton > button[kind="primary"],
@@ -349,10 +381,15 @@ def show_login_page():
 
             if is_signing_up:
                 with st.form("careflow_signup_form"):
-                    username = st.text_input(
-                        "Username",
-                        placeholder="Choose a username",
-                        key="signup_username",
+                    email = st.text_input(
+                        "Email",
+                        placeholder="you@example.com",
+                        key="signup_email",
+                    )
+                    name = st.text_input(
+                        "Name",
+                        placeholder="Your name",
+                        key="signup_name",
                     )
                     password = st.text_input(
                         "Password",
@@ -373,20 +410,24 @@ def show_login_page():
                     )
 
                 if submitted:
-                    username = username.strip()
-                    valid_username = (
-                        3 <= len(username) <= 32
-                        and username.isascii()
-                        and all(
-                            character.isalnum() or character in "_.-"
-                            for character in username
+                    email = email.strip().casefold()
+                    name = name.strip()
+                    valid_email = (
+                        len(email) <= 254
+                        and re.fullmatch(
+                            r"[^@\s]+@[^@\s.]+(?:\.[^@\s.]+)+",
+                            email,
                         )
+                        is not None
                     )
 
-                    if not valid_username:
+                    if not valid_email:
                         st.warning(
-                            "Use a 3–32 character username containing only "
-                            "letters, numbers, periods, underscores, or hyphens."
+                            "Enter a valid email address."
+                        )
+                    elif not name or len(name) > 100:
+                        st.warning(
+                            "Enter a name between 1 and 100 characters."
                         )
                     elif len(password) < 8 or len(password) > 1024:
                         st.warning(
@@ -396,11 +437,11 @@ def show_login_page():
                         st.warning("The passwords do not match.")
                     else:
                         try:
-                            _register_user(username, password)
+                            _register_user(email, name, password)
                         except sqlite3.IntegrityError:
                             st.error(
-                                "That username is already registered. "
-                                "Please choose another."
+                                "That email is already registered. "
+                                "Please sign in instead."
                             )
                         except (sqlite3.Error, OSError):
                             logger.exception("Unable to register a CareFlow account")
@@ -410,7 +451,7 @@ def show_login_page():
                             )
                         else:
                             st.session_state["auth_page"] = "login"
-                            st.session_state["login_username"] = username
+                            st.session_state["login_email"] = email
                             st.session_state["signup_complete"] = True
                             st.rerun()
 
@@ -424,10 +465,10 @@ def show_login_page():
 
             else:
                 with st.form("careflow_login_form"):
-                    username = st.text_input(
-                        "Username",
-                        placeholder="Enter your username",
-                        key="login_username",
+                    email = st.text_input(
+                        "Email",
+                        placeholder="you@example.com",
+                        key="login_email",
                     )
                     password = st.text_input(
                         "Password",
@@ -442,14 +483,14 @@ def show_login_page():
                     )
 
                 if submitted:
-                    if not username or not password:
+                    if not email or not password:
                         st.warning(
-                            "Please enter both your username and password."
+                            "Please enter both your email and password."
                         )
                     else:
                         try:
-                            authenticated = _authenticate_user(
-                                username.strip(),
+                            authenticated_name = _authenticate_user(
+                                email.strip(),
                                 password,
                             )
                         except (sqlite3.Error, OSError):
@@ -459,13 +500,13 @@ def show_login_page():
                                 "Please try again later."
                             )
                         else:
-                            if authenticated:
+                            if authenticated_name is not None:
                                 st.session_state["authenticated"] = True
-                                st.session_state["username"] = username.strip()
+                                st.session_state["username"] = authenticated_name
                                 st.rerun()
                             else:
                                 st.error(
-                                    "Incorrect username or password. Please try again."
+                                    "Incorrect email or password. Please try again."
                                 )
 
                 if st.button(
