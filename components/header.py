@@ -22,13 +22,13 @@ def show_header(
         <div style="
             margin-bottom: 28px;
             padding-bottom: 20px;
-            border-bottom: 1px solid #E2E8F0;
+            border-bottom: 1px solid #37475A;
         ">
             <div style="
                 display: inline-block;
                 padding: 6px 11px;
-                background: #CCFBF1;
-                color: #115E59;
+                background: #134E4A;
+                color: #99F6E4;
                 border-radius: 20px;
                 font-size: 10px;
                 font-weight: 700;
@@ -50,7 +50,7 @@ def show_header(
                     justify-content: center;
                     width: 46px;
                     height: 46px;
-                    background: #DDF7F2;
+                    background: #243B53;
                     border-radius: 14px;
                     font-size: 25px;
                 ">
@@ -58,7 +58,7 @@ def show_header(
                 </span>
 
                 <h1 style="
-                    color: #102A43;
+                    color: #F1F5F9;
                     font-size: 32px;
                     font-weight: 800;
                     letter-spacing: -1px;
@@ -70,7 +70,7 @@ def show_header(
             </div>
 
             <p style="
-                color: #627D98;
+                color: #A2B2C4;
                 font-size: 14px;
                 line-height: 1.7;
                 margin-top: 12px;

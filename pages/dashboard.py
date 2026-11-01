@@ -71,10 +71,10 @@ def _build_process_map(
         level, activity = node
         if activity == "Start":
             labels.append(f"Start<br>{node_cases[node]:,} cases")
-            node_colors.append("#BBF7D0")
+            node_colors.append(COLORS["green"])
         elif activity == "End":
             labels.append(f"End<br>{node_cases[node]:,} cases")
-            node_colors.append("#FECDD3")
+            node_colors.append(COLORS["red"])
         else:
             labels.append(f"{escape(activity)}<br>{node_cases[node]:,} cases")
             node_colors.append(
@@ -86,7 +86,7 @@ def _build_process_map(
     targets = [node_indices[target] for _, target in edge_cases]
     values = list(edge_cases.values())
     link_colors = [
-        "rgba(15, 118, 110, 0.26)" if value >= max(values) * 0.35
+        "rgba(45, 212, 191, 0.26)" if value >= max(values) * 0.35
         else "rgba(59, 130, 246, 0.18)"
         for value in values
     ]
@@ -97,7 +97,7 @@ def _build_process_map(
             node=dict(
                 pad=18,
                 thickness=17,
-                line=dict(color="#D7E3ED", width=0.7),
+                line=dict(color=COLORS["grid"], width=0.7),
                 label=labels,
                 color=node_colors,
                 hovertemplate="%{label}<extra></extra>",

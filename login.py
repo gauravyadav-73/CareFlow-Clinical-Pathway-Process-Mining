@@ -275,6 +275,10 @@ def apply_login_styles():
             text-transform: uppercase;
         }
 
+        .st-key-login-card [data-testid="stWidgetLabel"] p {
+            color: #DCE7F1 !important;
+        }
+
         div[data-baseweb="input"] > div {
             border-radius: 10px;
             min-height: 44px;
@@ -283,8 +287,13 @@ def apply_login_styles():
         }
 
         [data-testid="stTextInput"] input {
-            color: #E5EDF5;
-            background: #182332;
+            color: #E5EDF5 !important;
+            background: #182332 !important;
+        }
+
+        [data-testid="stTextInput"] input::placeholder {
+            color: #94A3B8 !important;
+            opacity: 1;
         }
 
         .stFormSubmitButton > button[kind="primary"],

@@ -12,6 +12,7 @@ from pages.process_discover import render_process_discovery
 from pages.reports import render_reports
 from pages.upload_dataset import render_upload_dataset
 from pages.what_if_simulator import render_what_if_simulator
+from components.charts import apply_chart_theme
 from components.styles import apply_styles
 from login import require_login
 from logout import show_logout_button
@@ -438,10 +439,8 @@ def show_upload_page():
                 },
             )
 
-            fig.update_layout(
-                template="plotly_white",
-                xaxis_tickangle=-35,
-            )
+            apply_chart_theme(fig)
+            fig.update_layout(xaxis_tickangle=-35)
 
             st.plotly_chart(fig, width="stretch")
 

@@ -3,6 +3,7 @@ import hashlib
 import plotly.express as px
 import streamlit as st
 
+from components.charts import apply_chart_theme
 from utils.data_loader import load_csv, validate_event_log
 
 
@@ -45,59 +46,59 @@ def _render_upload_stepper() -> None:
         <style>
         .cf-upload-header {{ margin: 0 0 1.1rem; }}
         .cf-upload-kicker {{
-            color: #0F766E; font-size: 10px; font-weight: 800;
+            color: #5EEAD4; font-size: 10px; font-weight: 800;
             letter-spacing: 1.35px; text-transform: uppercase; margin-bottom: 5px;
         }}
         .cf-upload-title {{
-            color: #102A43; font-size: clamp(26px, 3vw, 35px);
+            color: #F1F5F9; font-size: clamp(26px, 3vw, 35px);
             font-weight: 800; letter-spacing: -1px; line-height: 1.18;
             margin: 0 0 5px;
         }}
-        .cf-upload-subtitle {{ color: #627D98; font-size: 13px; margin: 0; }}
+        .cf-upload-subtitle {{ color: #A2B2C4; font-size: 13px; margin: 0; }}
         .cf-upload-steps {{
             display: flex; align-items: flex-start; margin: 1.25rem 0 1.4rem;
         }}
         .cf-upload-step {{
             display: flex; align-items: center; flex: 1; position: relative;
-            flex-direction: column; gap: 6px; color: #627D98; text-align: center;
+            flex-direction: column; gap: 6px; color: #A2B2C4; text-align: center;
         }}
         .cf-upload-step:not(:last-child)::after {{
             content: ""; height: 2px; position: absolute;
             top: 15px; left: calc(50% + 21px); right: calc(-50% + 21px);
-            background: #D7E2EE;
+            background: #37475A;
         }}
         .cf-upload-step:first-child .cf-upload-step-number {{
-            color: #fff; background: #0876D1; border-color: #0876D1;
-            box-shadow: 0 3px 8px rgba(8, 118, 209, .2);
+            color: #062925; background: #2DD4BF; border-color: #2DD4BF;
+            box-shadow: 0 3px 8px rgba(45, 212, 191, .2);
         }}
         .cf-upload-step-number {{
             display: flex; align-items: center; justify-content: center;
-            width: 31px; height: 31px; border: 1px solid #D7E2EE;
-            border-radius: 50%; background: #F7FAFD; color: #506782;
+            width: 31px; height: 31px; border: 1px solid #37475A;
+            border-radius: 50%; background: #243244; color: #DCE7F1;
             font-size: 12px; font-weight: 750; z-index: 1;
         }}
         .cf-upload-step-label {{ font-size: 11px; font-weight: 650; }}
         .cf-upload-panel {{
-            background: #FFFFFF; border: 1px solid #DCE7F2; border-radius: 14px;
+            background: #1F2937; border: 1px solid #37475A; border-radius: 14px;
             padding: 17px 18px; min-height: 200px;
             box-shadow: 0 4px 14px rgba(16, 42, 67, .035);
         }}
         .cf-upload-panel-title {{
-            color: #102A43; font-size: 14px; font-weight: 750; margin-bottom: 5px;
+            color: #F1F5F9; font-size: 14px; font-weight: 750; margin-bottom: 5px;
         }}
-        .cf-upload-panel-copy {{ color: #627D98; font-size: 11px; margin-bottom: 14px; }}
+        .cf-upload-panel-copy {{ color: #A2B2C4; font-size: 11px; margin-bottom: 14px; }}
         .cf-expected-column {{
             display: flex; align-items: flex-start; gap: 9px;
-            color: #334E68; font-size: 11px; line-height: 1.45; margin: 11px 0;
+            color: #D5E0EA; font-size: 11px; line-height: 1.45; margin: 11px 0;
         }}
         .cf-expected-icon {{
             display: inline-flex; align-items: center; justify-content: center;
             width: 22px; height: 22px; flex: 0 0 22px; border-radius: 7px;
-            background: #EAF4FF; color: #0876D1; font-weight: 800;
+            background: #134E4A; color: #99F6E4; font-weight: 800;
         }}
-        .cf-expected-column strong {{ color: #243B53; }}
-        .cf-sample-title {{ color: #243B53; font-size: 12px; font-weight: 750; }}
-        .cf-sample-copy {{ color: #627D98; font-size: 11px; }}
+        .cf-expected-column strong {{ color: #E5EDF5; }}
+        .cf-sample-title {{ color: #E5EDF5; font-size: 12px; font-weight: 750; }}
+        .cf-sample-copy {{ color: #A2B2C4; font-size: 11px; }}
         @media (max-width: 700px) {{
             .cf-upload-panel {{ min-height: auto; margin-top: 10px; }}
             .cf-upload-step-label {{ font-size: 10px; }}
@@ -373,5 +374,6 @@ def render_upload_dataset() -> None:
             title="Number of events per activity",
             labels={"Activity": "Clinical activity"},
         )
-        fig.update_layout(template="plotly_white", xaxis_tickangle=-35)
+        apply_chart_theme(fig)
+        fig.update_layout(xaxis_tickangle=-35)
         st.plotly_chart(fig, width="stretch")

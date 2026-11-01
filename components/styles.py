@@ -164,7 +164,8 @@ def apply_styles():
             justify-content: center;
             width: 42px;
             height: 42px;
-            background: #CCFBF1;
+            background: #134E4A;
+            color: #5EEAD4;
             border-radius: 12px;
             font-size: 21px;
             margin-bottom: 15px;
@@ -488,7 +489,7 @@ def apply_styles():
             gap: 7px;
             border: 1px solid var(--cf-border);
             border-radius: 9px;
-            background: #FFFFFF;
+            background: var(--cf-surface);
             color: var(--cf-text);
             font-size: 11px;
             font-weight: 650;
@@ -498,8 +499,8 @@ def apply_styles():
         }
 
         .cf-overview-status-ready {
-            border-color: #A7F3D0;
-            color: #047857;
+            border-color: #226354;
+            color: #6EE7B7;
         }
 
         .cf-overview-status-dot {
@@ -527,7 +528,7 @@ def apply_styles():
             border: 1px solid var(--cf-border);
             border-top: 3px solid var(--cf-accent, var(--cf-primary));
             border-radius: 13px;
-            background: #FFFFFF;
+            background: var(--cf-surface);
             box-shadow: 0 4px 14px rgba(16, 42, 67, 0.04);
             margin-bottom: 10px;
             padding: 13px 15px;
@@ -535,27 +536,27 @@ def apply_styles():
 
         .cf-accent-blue {
             --cf-accent: #3B82F6;
-            --cf-icon-background: #EFF6FF;
+            --cf-icon-background: #1E3A5F;
         }
 
         .cf-accent-purple {
             --cf-accent: #8B5CF6;
-            --cf-icon-background: #F5F3FF;
+            --cf-icon-background: #3B2F5C;
         }
 
         .cf-accent-teal {
-            --cf-accent: #0F766E;
-            --cf-icon-background: #CCFBF1;
+            --cf-accent: #5EEAD4;
+            --cf-icon-background: #134E4A;
         }
 
         .cf-accent-orange {
             --cf-accent: #F59E0B;
-            --cf-icon-background: #FFF7ED;
+            --cf-icon-background: #4A3522;
         }
 
         .cf-accent-red {
             --cf-accent: #EF4444;
-            --cf-icon-background: #FFF1F2;
+            --cf-icon-background: #4A2A34;
         }
 
         .cf-overview-icon {
@@ -565,7 +566,7 @@ def apply_styles():
             width: 34px;
             height: 34px;
             border-radius: 10px;
-            background: var(--cf-icon-background, #F1F5F9);
+            background: var(--cf-icon-background, #243244);
             color: var(--cf-accent, var(--cf-primary));
             font-size: 18px;
             margin-bottom: 9px;
@@ -778,7 +779,7 @@ def apply_styles():
         }
 
         [data-testid="stFileUploader"] {
-            background: #FFFFFF;
+            background: var(--cf-surface);
             border: 1px dashed #99B8C8;
             border-radius: 14px;
             padding: 12px;
@@ -789,7 +790,7 @@ def apply_styles():
         ----------------------------------------- */
 
         div[data-testid="stMetric"] {
-            background: #FFFFFF;
+            background: var(--cf-surface);
             border: 1px solid var(--cf-border);
             border-radius: 14px;
             padding: 17px;
@@ -810,7 +811,7 @@ def apply_styles():
         ----------------------------------------- */
 
         [data-testid="stExpander"] {
-            background: #FFFFFF;
+            background: var(--cf-surface);
             border: 1px solid var(--cf-border);
             border-radius: 12px;
         }
