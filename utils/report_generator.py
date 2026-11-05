@@ -1,7 +1,21 @@
 from collections.abc import Sequence
+from io import BytesIO
 from typing import Any
+from xml.sax.saxutils import escape
 
 import pandas as pd
+from reportlab.lib import colors
+from reportlab.lib.enums import TA_LEFT
+from reportlab.lib.pagesizes import letter
+from reportlab.lib.styles import ParagraphStyle, getSampleStyleSheet
+from reportlab.lib.units import inch
+from reportlab.platypus import (
+    Paragraph,
+    SimpleDocTemplate,
+    Spacer,
+    Table,
+    TableStyle,
+)
 
 from utils.analytics import describe_event_log
 from utils.data_loader import validate_event_log
@@ -154,3 +168,98 @@ def combine_report_tables(
         sections.append(f"# {title}")
         sections.append(table.to_csv(index=False))
     return "\n".join(sections).encode("utf-8")
+
+
+def report_to_pdf_bytes(
+    title: str,
+    dataset_name: str,
+    summary: pd.DataFrame,
+    findings: Sequence[str],
+) -> bytes:
+    """Render a concise, printable PDF summary of the report."""
+
+    buffer = BytesIO()
+    document = SimpleDocTemplate(
+        buffer,
+        pagesize=letter,
+        rightMargin=0.65 * inch,
+        leftMargin=0.65 * inch,
+        topMargin=0.65 * inch,
+        bottomMargin=0.65 * inch,
+        title=title,
+        author="CareFlow",
+    )
+    styles = getSampleStyleSheet()
+    title_style = ParagraphStyle(
+        "CareFlowTitle",
+        parent=styles["Title"],
+        textColor=colors.HexColor("#102A43"),
+        alignment=TA_LEFT,
+        spaceAfter=5,
+    )
+    section_style = ParagraphStyle(
+        "CareFlowSection",
+        parent=styles["Heading2"],
+        textColor=colors.HexColor("#0F766E"),
+        spaceBefore=14,
+        spaceAfter=7,
+    )
+    body_style = ParagraphStyle(
+        "CareFlowBody",
+        parent=styles["BodyText"],
+        fontSize=9,
+        leading=13,
+    )
+
+    def safe_text(value: object) -> str:
+        return escape(str(value).encode("cp1252", "replace").decode("cp1252"))
+
+    content = [
+        Paragraph(safe_text(title), title_style),
+        Paragraph(f"Dataset: {safe_text(dataset_name)}", body_style),
+        Spacer(1, 12),
+        Paragraph("Analysis Summary", section_style),
+    ]
+
+    table_data = [
+        [
+            Paragraph("<b>Metric</b>", body_style),
+            Paragraph("<b>Value</b>", body_style),
+        ]
+    ]
+    table_data.extend(
+        [
+            Paragraph(safe_text(row["Metric"]), body_style),
+            Paragraph(safe_text(row["Value"]), body_style),
+        ]
+        for _, row in summary.iterrows()
+    )
+    summary_table = Table(
+        table_data,
+        colWidths=[2.5 * inch, 4.0 * inch],
+        repeatRows=1,
+        hAlign="LEFT",
+    )
+    summary_table.setStyle(
+        TableStyle(
+            [
+                ("BACKGROUND", (0, 0), (-1, 0), colors.HexColor("#E6FFFB")),
+                ("TEXTCOLOR", (0, 0), (-1, 0), colors.HexColor("#102A43")),
+                ("GRID", (0, 0), (-1, -1), 0.4, colors.HexColor("#CBD5E1")),
+                ("VALIGN", (0, 0), (-1, -1), "TOP"),
+                ("LEFTPADDING", (0, 0), (-1, -1), 8),
+                ("RIGHTPADDING", (0, 0), (-1, -1), 8),
+                ("TOPPADDING", (0, 0), (-1, -1), 6),
+                ("BOTTOMPADDING", (0, 0), (-1, -1), 6),
+            ]
+        )
+    )
+    content.append(summary_table)
+    content.append(Paragraph("Key Findings", section_style))
+    content.extend(
+        Paragraph(f"&bull; {safe_text(finding)}", body_style)
+        for finding in findings
+    )
+
+    document.build(content)
+    return buffer.getvalue()
