@@ -26,6 +26,9 @@ def show_logout_button():
             "case_column_select",
             "activity_column_select",
             "timestamp_column_select",
+            "careflow_case_column",
+            "careflow_activity_column",
+            "careflow_timestamp_column",
             "selected_cases_filter",
             "selected_activities_filter",
         ):

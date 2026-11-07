@@ -210,6 +210,9 @@ def render_upload_dataset() -> None:
                     "case_column_select",
                     "activity_column_select",
                     "timestamp_column_select",
+                    "careflow_case_column",
+                    "careflow_activity_column",
+                    "careflow_timestamp_column",
                     "selected_cases_filter",
                     "selected_activities_filter",
                 ):
@@ -264,23 +267,36 @@ def render_upload_dataset() -> None:
         case_column = st.selectbox(
             "Case ID column",
             columns,
-            index=_column_index(columns, case_default),
+            index=_column_index(
+                columns,
+                st.session_state.get("careflow_case_column", case_default),
+            ),
             key="case_column_select",
         )
     with map_cols[1]:
         activity_column = st.selectbox(
             "Activity column",
             columns,
-            index=_column_index(columns, activity_default),
+            index=_column_index(
+                columns,
+                st.session_state.get("careflow_activity_column", activity_default),
+            ),
             key="activity_column_select",
         )
     with map_cols[2]:
         timestamp_column = st.selectbox(
             "Timestamp column",
             columns,
-            index=_column_index(columns, timestamp_default),
+            index=_column_index(
+                columns,
+                st.session_state.get("careflow_timestamp_column", timestamp_default),
+            ),
             key="timestamp_column_select",
         )
+
+    st.session_state["careflow_case_column"] = case_column
+    st.session_state["careflow_activity_column"] = activity_column
+    st.session_state["careflow_timestamp_column"] = timestamp_column
 
     if len({case_column, activity_column, timestamp_column}) != 3:
         st.warning(

@@ -9,17 +9,17 @@ import plotly.graph_objects as go
 # ==========================================================
 
 COLORS = {
-    "navy": "#102A43",
-    "teal": "#0F766E",
+    "navy": "#F1F5F9",
+    "teal": "#2DD4BF",
     "mint": "#99F6E4",
     "blue": "#3B82F6",
     "purple": "#8B5CF6",
     "orange": "#F59E0B",
     "red": "#EF4444",
-    "green": "#16A34A",
-    "muted": "#627D98",
-    "background": "#FFFFFF",
-    "grid": "#E8EEF4",
+    "green": "#4ADE80",
+    "muted": "#A2B2C4",
+    "background": "#1F2937",
+    "grid": "#37475A",
 }
 
 
@@ -29,7 +29,7 @@ def apply_chart_theme(fig, height=380):
     """
 
     fig.update_layout(
-        template="plotly_white",
+        template="plotly_dark",
         height=height,
         paper_bgcolor="rgba(0,0,0,0)",
         plot_bgcolor="rgba(0,0,0,0)",
@@ -53,8 +53,8 @@ def apply_chart_theme(fig, height=380):
             b=25,
         ),
         hoverlabel=dict(
-            bgcolor="#102A43",
-            font_color="#FFFFFF",
+            bgcolor="#1F2937",
+            font_color="#F1F5F9",
             font_size=12,
         ),
     )

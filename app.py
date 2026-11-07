@@ -199,9 +199,9 @@ def show_dashboard():
     render_dashboard(
         st.session_state.get("careflow_dataset"),
         st.session_state.get("careflow_filename"),
-        st.session_state.get("case_column_select"),
-        st.session_state.get("activity_column_select"),
-        st.session_state.get("timestamp_column_select"),
+        st.session_state.get("careflow_case_column"),
+        st.session_state.get("careflow_activity_column"),
+        st.session_state.get("careflow_timestamp_column"),
     )
 
 
@@ -460,9 +460,9 @@ def show_upload_page():
 def show_process_discovery():
     render_process_discovery(
         st.session_state.get("careflow_dataset"),
-        st.session_state.get("case_column_select"),
-        st.session_state.get("activity_column_select"),
-        st.session_state.get("timestamp_column_select"),
+        st.session_state.get("careflow_case_column"),
+        st.session_state.get("careflow_activity_column"),
+        st.session_state.get("careflow_timestamp_column"),
     )
 
 
@@ -473,9 +473,9 @@ def show_process_discovery():
 def show_bottleneck_analysis():
     render_bottleneck_analysis(
         st.session_state.get("careflow_dataset"),
-        st.session_state.get("case_column_select"),
-        st.session_state.get("activity_column_select"),
-        st.session_state.get("timestamp_column_select"),
+        st.session_state.get("careflow_case_column"),
+        st.session_state.get("careflow_activity_column"),
+        st.session_state.get("careflow_timestamp_column"),
     )
 
 
@@ -486,45 +486,45 @@ def show_bottleneck_analysis():
 def show_conformance_analysis():
     render_conformance_analysis(
         st.session_state.get("careflow_dataset"),
-        st.session_state.get("case_column_select"),
-        st.session_state.get("activity_column_select"),
-        st.session_state.get("timestamp_column_select"),
+        st.session_state.get("careflow_case_column"),
+        st.session_state.get("careflow_activity_column"),
+        st.session_state.get("careflow_timestamp_column"),
     )
 
 
 def show_pathway_comparison():
     render_pathway_comparison(
         st.session_state.get("careflow_dataset"),
-        st.session_state.get("case_column_select"),
-        st.session_state.get("activity_column_select"),
-        st.session_state.get("timestamp_column_select"),
+        st.session_state.get("careflow_case_column"),
+        st.session_state.get("careflow_activity_column"),
+        st.session_state.get("careflow_timestamp_column"),
     )
 
 
 def show_patient_journey():
     render_patient_journey(
         st.session_state.get("careflow_dataset"),
-        st.session_state.get("case_column_select"),
-        st.session_state.get("activity_column_select"),
-        st.session_state.get("timestamp_column_select"),
+        st.session_state.get("careflow_case_column"),
+        st.session_state.get("careflow_activity_column"),
+        st.session_state.get("careflow_timestamp_column"),
     )
 
 
 def show_what_if_simulator():
     render_what_if_simulator(
         st.session_state.get("careflow_dataset"),
-        st.session_state.get("case_column_select"),
-        st.session_state.get("activity_column_select"),
-        st.session_state.get("timestamp_column_select"),
+        st.session_state.get("careflow_case_column"),
+        st.session_state.get("careflow_activity_column"),
+        st.session_state.get("careflow_timestamp_column"),
     )
 
 
 def show_deviation_explorer():
     render_deviation_explorer(
         st.session_state.get("careflow_dataset"),
-        st.session_state.get("case_column_select"),
-        st.session_state.get("activity_column_select"),
-        st.session_state.get("timestamp_column_select"),
+        st.session_state.get("careflow_case_column"),
+        st.session_state.get("careflow_activity_column"),
+        st.session_state.get("careflow_timestamp_column"),
     )
 
 
@@ -536,9 +536,9 @@ def show_reports():
     render_reports(
         st.session_state.get("careflow_dataset"),
         st.session_state.get("careflow_filename"),
-        st.session_state.get("case_column_select"),
-        st.session_state.get("activity_column_select"),
-        st.session_state.get("timestamp_column_select"),
+        st.session_state.get("careflow_case_column"),
+        st.session_state.get("careflow_activity_column"),
+        st.session_state.get("careflow_timestamp_column"),
     )
 
 
@@ -567,7 +567,7 @@ page = st.navigation(
             ),
             st.Page(
                 show_patient_journey,
-                title="Patient Journey",
+                title="Case Explorer",
                 icon="🧭",
             ),
             st.Page(
